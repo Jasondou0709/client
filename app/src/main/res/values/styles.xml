@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+   
+
+    <style name="WinDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+    <!-- -->
+    <style name="ActionBarSettingImg">
+        <item name="android:layout_marginLeft">15dp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="ActionBarSettingTextView">
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/group_list_black_textview</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+    <!-- 下划线-->
+    <style name="PublicLineView">
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:background">@color/group_list_gray</item>
+    </style>
+
+    <!--主页面ui下划线-->
+    <style name="DemoMainPublic">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">4dp</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:background">@color/de_title_bg</item>
+    </style>
+
+    <style name="DemoMainNewMassage">
+        <item name="android:background">@drawable/rc_unread_count_bg</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@android:color/tab_indicator_text</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_width">18dp</item>
+        <item name="android:layout_height">18dp</item>
+       <!-- <item name="android:visibility">gone</item>-->
+    </style>
+    <style name="DemoAddressNewMassage">
+        <item name="android:background">@drawable/rc_unread_count_bg</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@android:color/tab_indicator_text</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+        <!-- <item name="android:visibility">gone</item>-->
+    </style>
+
+    <!-- big black-->
+    <style name="DemoTextStyleBig1">
+        <item name="android:textSize">18sp</item>
+    </style>
+    <!-- big black-->
+    <style name="DemoTextStyleBigBlack">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/group_list_black_textview</item>
+    </style>
+    <!-- small gray-->
+    <style name="DemoTextStyleSmall">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/group_list_gray</item>
+    </style>
+
+    <!-- middle gray-->
+    <style name="DemoTextStyleMiddle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/group_list_gray</item>
+    </style>
+
+
+    <style name="anim_popup_dir">
+        <item name="android:windowEnterAnimation">@anim/slide_in</item>
+        <item name="android:windowExitAnimation">@anim/slide_out</item>
+    </style>
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+    
+    <style name="title_imButon">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/btn_back</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+    
+    <style name="title_text_new">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:textSize">@dimen/contact_text_name</item>
+        <item name="android:textColor">@color/textcolor_gray</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:marqueeRepeatLimit">marquee_forever</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:gravity">center</item>
+    </style>
+    
+    <style name="add_dialog" parent="@android:style/Theme.Dialog">  
+        <item name="android:windowFrame">@null</item><!-- 边框 -->  
+        <item name="android:windowIsFloating">true</item><!-- 是否浮现在activity之上 -->  
+        <item name="android:windowIsTranslucent">true</item><!-- 半透明 -->  
+        <item name="android:windowNoTitle">false</item><!-- 无标题 -->  
+        <item name="android:windowBackground">@color/bantouming</item><!-- 自己想要的背景 -->  
+        <item name="android:backgroundDimEnabled">true</item><!-- 模糊 -->  
+    </style>  
+
+        <style name="AppTheme.NoTitleBar" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:background">#ff000000</item>
+    </style>
+
+</resources>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="72dip"
+            android:orientation="vertical">
+
+            
+            <RelativeLayout
+                android:id="@+id/liner1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dip"
+                android:layout_marginRight="30dip"
+                android:orientation="horizontal">
+
+
+                <EditText
+                    android:id="@+id/input_schoolname_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rc_ed_public_service_search_selector"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/input_schoolname"
+                    android:singleLine="true"
+                    android:textColor="@color/main_regist"
+                    android:textColorHint="@color/main_regist" />
+
+                <FrameLayout
+                    android:id="@+id/fr_username_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignRight="@+id/app_username_et"
+                    android:layout_centerVertical="true"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dip"
+                        android:src="@drawable/de_register_delete" />
+                </FrameLayout>
+
+            </RelativeLayout>
+            
+            <RelativeLayout
+                android:id="@+id/liner1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dip"
+                android:layout_marginRight="30dip"
+                android:orientation="horizontal">
+
+
+                <EditText
+                    android:id="@+id/input_classname_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rc_ed_public_service_search_selector"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/input_classname"
+                    android:singleLine="true"
+                    android:textColor="@color/main_regist"
+                    android:textColorHint="@color/main_regist" />
+
+                <FrameLayout
+                    android:id="@+id/fr_username_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignRight="@+id/app_username_et"
+                    android:layout_centerVertical="true"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dip"
+                        android:src="@drawable/de_register_delete" />
+                </FrameLayout>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/liner2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dip"
+                android:layout_marginRight="30dip"
+                android:layout_marginTop="37dip"
+                android:orientation="horizontal">
+
+
+                <EditText
+                    android:id="@+id/input_introduce_et"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rc_ed_public_service_search_selector"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/input_introduce"
+                    android:singleLine="true"
+                    android:textColor="@color/main_regist"
+                    android:textColorHint="@color/main_regist" />
+
+                <FrameLayout
+                    android:id="@+id/fr_pass_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignRight="@+id/app_password_et"
+                    android:layout_centerVertical="true"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dip"
+                        android:src="@drawable/de_register_delete" />
+                </FrameLayout>
+            </RelativeLayout>
+
+
+            <Button
+                android:id="@+id/create_class_bt"
+                style="@style/DemoTextStyleBig1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dip"
+                android:layout_marginRight="30dip"
+                android:layout_marginTop="24dip"
+                android:background="@drawable/de_login_selector"
+                android:text="创建"
+                android:textColor="@color/main_regist" />
+
+
+    </LinearLayout>
+</LinearLayout>
