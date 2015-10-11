@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -70,6 +71,7 @@ import io.rong.app.message.DeAgreedFriendRequestMessage;
 import io.rong.app.model.ClassGroup;
 import io.rong.app.model.Groups;
 import io.rong.app.model.Status;
+import io.rong.app.provider.RequestProvider;
 import io.rong.app.ui.LoadingDialog;
 import io.rong.app.ui.WinToast;
 import io.rong.app.utils.Constants;
@@ -532,73 +534,12 @@ public class MainActivity extends BaseApiActivity implements View.OnClickListene
                 hasNewFriends = intent.getBooleanExtra("has_message", false);
                 supportInvalidateOptionsMenu();
                 contactContentMessage =(ContactNotificationMessage) intent.getParcelableExtra("rongCloud");
-                if (contactContentMessage.getMessage().equalsIgnoreCase("send request")) {
-                	final String classId = contactContentMessage.getExtra();
+                if (contactContentMessage.getMessage().equalsIgnoreCase("send request")) { 
                 	final AlertDialog.Builder alterDialog = new AlertDialog.Builder(MainActivity.this);
-                    alterDialog.setMessage("请求加入班级");
+                    alterDialog.setMessage("好友或班级请求，请在“新的朋友和班级”中处理");
                     alterDialog.setCancelable(true);
 
-                    alterDialog.setPositiveButton("同意", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        	if (DemoContext.getInstance() != null) {
-                        		//mAgreeJoinGroupHttpRequest = DemoContext.getInstance().getDemoApi().processRequestGroup(contactContentMessage.getSourceUserId(), contactContentMessage.getExtra(), MainActivity.this);
-                        		new AsyncTask<Void, Void, Integer>() {
-                        			
-            						@Override
-            						protected Integer doInBackground(Void... arg0) {
-            							HttpClient client = new DefaultHttpClient();
-            	
-            							HttpPost httpPost = new HttpPost("http://moments.daoapp.io/api/v1.0/class/confirm");
-            	
-            							List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            							nameValuePairs.add(new BasicNameValuePair("class_id", classId));
-            							nameValuePairs.add(new BasicNameValuePair("user_id", contactContentMessage.getSourceUserId()));
-            							Log.d(TAG, "class_id:" + classId + " user_id:" + contactContentMessage.getSourceUserId());
-            							
-            							String result = null;
-            							try {
-            								String md5 = LoginActivity.password;
-            	        					String encoding  = Base64.encodeToString(new String(LoginActivity.username +":"+md5).getBytes(), Base64.NO_WRAP);
-            	        					Log.d("====", "password= " + md5 + "userName = " + LoginActivity.username + "encoding:" + encoding);
-            	        					//HttpGet httpGet = new HttpGet("http://moments.daoapp.io/api/v1.0/class/search" + "?name=" + groupName);
-            	        					httpPost.setHeader("Authorization", "Basic " + encoding);
-            								httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
-            								HttpResponse response = client.execute(httpPost);
-            								Log.d("====", "result code = " + response.getStatusLine().getStatusCode());
-            								if (response.getStatusLine().getStatusCode() == 200) {      									
-            									return 200;
-            								} else {      									
-            									return 401;
-            								}
-            	
-            							} catch (ClientProtocolException e) {
-            								// TODO Auto-generated catch block
-            								e.printStackTrace();
-            							} catch (IOException e) {
-            								// TODO Auto-generated catch block
-            								e.printStackTrace();
-            							}
-            							return 401;
-            						}
-            	
-            						@Override
-            						protected void onPostExecute(Integer result) {
-            							if (result == 200) {
-            								Toast.makeText(MainActivity.this, "已成功添加到班级", Toast.LENGTH_LONG).show();
-            							} else {
-            								Toast.makeText(MainActivity.this, "添加到班级失败", Toast.LENGTH_LONG).show();
-            							}
-            						}
-            	
-            					}.execute();
-                        		
-                        	}
-                            
-                        }
-                    });
-                    alterDialog.setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
+                    alterDialog.setNegativeButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.cancel();
@@ -606,12 +547,18 @@ public class MainActivity extends BaseApiActivity implements View.OnClickListene
                     });
                     alterDialog.show();
                 }
-                
+ 
                 //notify to be joined to group
                 if (contactContentMessage.getMessage().equalsIgnoreCase("class_id")) {
                 	Intent in = new Intent();
                     in.setAction(MainActivity.ACTION_DMEO_GROUP_MESSAGE);
                     sendBroadcast(in);
+                    
+                    Intent in1 = new Intent();
+                    in1.setAction(MainActivity.ACTION_DMEO_AGREE_REQUEST);
+                    sendBroadcast(in1);
+                    
+                    Toast.makeText(MainActivity.this,"您已成功加入班级，班级成员自动成为您的好友", Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -642,14 +589,14 @@ public class MainActivity extends BaseApiActivity implements View.OnClickListene
         MenuInflater inflater = getMenuInflater();
         this.mMenu = menu;
         inflater.inflate(R.menu.de_main_menu, menu);
-        if (hasNewFriends) {
+        /*if (hasNewFriends) {
             mMenu.getItem(0).setIcon(getResources().getDrawable(R.drawable.de_ic_add_hasmessage));
             mMenu.getItem(0).getSubMenu().getItem(2).setIcon(getResources().getDrawable(R.drawable.de_btn_main_contacts_select));
-        } else {
+        } else {*/
             mMenu.getItem(0).setIcon(getResources().getDrawable(R.drawable.de_ic_add));
             mMenu.getItem(0).getSubMenu().getItem(2).setIcon(getResources().getDrawable(R.drawable.de_btn_main_contacts));
 
-        }
+        //}
 
         return true;
     }

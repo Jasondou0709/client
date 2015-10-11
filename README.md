@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# 融云
+﻿# 宝盟
 
 ![Mou icon](http://www.rongcloud.cn/images/logo_1.png)
 
@@ -72,7 +71,3 @@ Email：<bd@rongcloud.cn>
 融云RongCloud RongCloud 公众账号二维码
 
 ![Smaller icon](http://www.rongcloud.cn/images/code1.png "RongCloud")
-=======
-# client
-客户端
->>>>>>> 8b817ca60349dd3cc3aea09c59c8728ca5785ef2

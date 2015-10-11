@@ -134,29 +134,34 @@ public class SearchFriendActivity extends BaseApiActivity implements View.OnClic
 			if (str != null) {
 	            if (mResultList.size() > 0)
 	                mResultList.clear();
-				try {
+	            
+	            try {
 					/** 把json字符串转换成json对象 **/
 					JSONObject jsonObject = new JSONObject(str);
 					String resultCode = jsonObject.getString("status");
 					if (resultCode.equalsIgnoreCase("200")) {
-						String id = jsonObject.getString("id");
-						String name = jsonObject.getString("name");
-						String portrait = jsonObject.getString("portrait");
-						mResultList.add(new User1(id, name, portrait));
+						
+						JSONArray idJson = jsonObject.getJSONArray("users");
+						for (int i = 0; i < idJson.length(); i++) {
+							JSONObject jsonObject1 = idJson.getJSONObject(i);
+							String id = jsonObject1.getString("id");
+							String name = jsonObject1.getString("username");
+							String portrait = jsonObject1.getString("portrait");
+							mResultList.add(new User1(id, name, portrait));	
+						}
+						adapter = new SearchFriendAdapter(mResultList, SearchFriendActivity.this);
+		                mListSearch.setAdapter(adapter);
+		                adapter.notifyDataSetChanged();
 					} else {
 						Toast.makeText(SearchFriendActivity.this,"not found", Toast.LENGTH_LONG).show();
-					}
-
+					}     					
 				} catch (JSONException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				}
-				
-				adapter = new SearchFriendAdapter(mResultList, SearchFriendActivity.this);
-                mListSearch.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
-
-			}
+				}			
+			} else {
+				Toast.makeText(SearchFriendActivity.this,"not found", Toast.LENGTH_LONG).show();
+			}   
 	    }
 	}
 

@@ -259,6 +259,7 @@ public final class RongCloudEvent implements RongIMClient.OnReceiveMessageListen
             in.putExtra("rongCloud", contactContentMessage);
             in.putExtra("has_message", true);
             mContext.sendBroadcast(in);
+            receiveRequest(contactContentMessage);
         } else {
             Log.d(TAG, "onReceived-其他消息，自己来判断处理");
         }
@@ -288,6 +289,11 @@ public final class RongCloudEvent implements RongIMClient.OnReceiveMessageListen
 
     }
 
+    private void receiveRequest(ContactNotificationMessage contactContentMessage) {
+    	if (DemoContext.getInstance() != null) {
+    		DemoContext.getInstance().insertRequest(contactContentMessage);
+    	}  	
+    }
 
     @Override
     public Message onSend(Message message) {

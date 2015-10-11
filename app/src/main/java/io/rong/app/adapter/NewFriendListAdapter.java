@@ -1,5 +1,6 @@
 package io.rong.app.adapter;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -7,11 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import java.util.List;
-
+import com.sea_monster.resource.Resource;
 import io.rong.app.R;
 import io.rong.app.model.ApiResult;
+import io.rong.app.model.RequestInfo;
 import io.rong.imkit.widget.AsyncImageView ;
 
 /**
@@ -22,7 +23,7 @@ public class NewFriendListAdapter extends android.widget.BaseAdapter {
 
     private Context mContext;
     private LayoutInflater mLayoutInflater;
-    private List<ApiResult> mResults;
+    private List<RequestInfo> mResults;
     OnItemButtonClick mOnItemButtonClick;
 
     public OnItemButtonClick getOnItemButtonClick() {
@@ -33,7 +34,7 @@ public class NewFriendListAdapter extends android.widget.BaseAdapter {
         this.mOnItemButtonClick = onItemButtonClick;
     }
 
-    public NewFriendListAdapter(List<ApiResult> results, Context context){
+    public NewFriendListAdapter(List<RequestInfo> results, Context context){
         this.mResults = results;
         this.mContext = context;
         mLayoutInflater = LayoutInflater.from(context);
@@ -42,7 +43,11 @@ public class NewFriendListAdapter extends android.widget.BaseAdapter {
 
     @Override
     public int getCount() {
-        return mResults.size();
+    	if(mResults != null) {
+    		return mResults.size();
+    	} else {
+    		return 0;
+    	}
     }
 
     @Override
@@ -55,8 +60,8 @@ public class NewFriendListAdapter extends android.widget.BaseAdapter {
         return position;
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    @Override
+    @SuppressLint("NewApi")
+	@Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
         if(convertView == null || convertView.getTag() == null){
@@ -73,7 +78,13 @@ public class NewFriendListAdapter extends android.widget.BaseAdapter {
         }
 
         if(viewHolder != null) {
-            viewHolder.mFrienduUserName.setText(mResults.get(position).getUsername());
+        	if(mResults.get(position).getPortrait() == null || (mResults.get(position).getPortrait() != null && mResults.get(position).getPortrait().equalsIgnoreCase(""))) {
+        		viewHolder.mPortraitImg.setDefaultDrawable(mContext.getResources().getDrawable(R.drawable.rc_default_portrait));
+        	} else {
+        		Resource res = new Resource(mResults.get(position).getPortrait());
+        		viewHolder.mPortraitImg.setResource(res);
+        	}
+            viewHolder.mFrienduUserName.setText(mResults.get(position).getId() + mResults.get(position).getName());
             viewHolder.mFrienduState.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -82,23 +93,19 @@ public class NewFriendListAdapter extends android.widget.BaseAdapter {
                 }
             });
                 switch (mResults.get(position).getStatus()){
-                    case 1://好友
-                        viewHolder.mFrienduState.setText("已添加");
-                        viewHolder.mFrienduState.setBackground(null);
+                    case 0://好友
+                    	if (mResults.get(position).getClassId() != null) {
+                    		viewHolder.mFrienduState.setText("请求添加到班级：" + mResults.get(position).getClassName());
+                    	} else {
+                    		viewHolder.mFrienduState.setText("请求添加你为好友");
+                    	}
                         break;
-                    case 2://请求添加
-                        viewHolder.mFrienduState.setText("请求添加");
-                        viewHolder.mFrienduState.setBackground(null);
-                        break;
-                    case 3://请求被添加
-                        viewHolder.mFrienduState.setText("添加");
-                        break;
-                    case 4://请求被拒绝
-                        viewHolder.mFrienduState.setText("请求被拒绝");
-                        viewHolder.mFrienduState.setBackground(null);
-                        break;
-                    case 5://我被对方删除
-                        viewHolder.mFrienduState.setText("被删除");
+                    case 1://已添加
+                    	if (mResults.get(position).getClassId() != null) {
+                    		viewHolder.mFrienduState.setText("已添加到班级：" + mResults.get(position).getClassName());
+                    	} else {
+                    		viewHolder.mFrienduState.setText("已添加为好友");
+                    	}                     
                         viewHolder.mFrienduState.setBackground(null);
                         break;
 

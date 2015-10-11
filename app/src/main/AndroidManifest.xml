@@ -368,7 +368,9 @@
             android:name="com.example.testpic.PhotoActivity"
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
-
+        <provider
+            android:name="io.rong.app.provider.RequestProvider"
+            android:authorities="io.rong.app.provider" />
 
         <meta-data
             android:name="RONG_CLOUD_APP_KEY"

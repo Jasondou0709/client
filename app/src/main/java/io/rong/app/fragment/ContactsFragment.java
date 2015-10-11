@@ -4,10 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,18 +17,33 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import io.rong.app.DemoContext;
 import io.rong.app.R;
+import io.rong.app.activity.LoginActivity;
 import io.rong.app.activity.NewFriendListActivity;
 import io.rong.app.activity.PersonalDetailActivity;
 import io.rong.app.activity.MainActivity;
 import io.rong.app.activity.PublicServiceActivity;
 import io.rong.app.adapter.ContactsMultiChoiceAdapter;
 import io.rong.app.adapter.FriendListAdapter;
+import io.rong.app.database.DBManager;
+import io.rong.app.database.UserInfos;
+import io.rong.app.database.UserInfosDao;
 import io.rong.app.model.Friend;
 import io.rong.app.ui.DePinnedHeaderListView;
 import io.rong.app.ui.DeSwitchGroup;
@@ -52,6 +69,9 @@ public class ContactsFragment extends Fragment implements DeSwitchGroup.ItemHand
     protected List<Friend> mFriendsList;
     private TextView textViwe;
     private ReceiveMessageBroadcastReciver mBroadcastReciver;
+    
+    UserInfosDao mUserInfosDao;
+    List<UserInfos> friendsList = new ArrayList<UserInfos>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.de_list_address, null);
@@ -78,6 +98,8 @@ public class ContactsFragment extends Fragment implements DeSwitchGroup.ItemHand
             mBroadcastReciver = new ReceiveMessageBroadcastReciver();
         }
         getActivity().registerReceiver(mBroadcastReciver, intentFilter);
+        
+        mUserInfosDao = DBManager.getInstance(getActivity()).getDaoSession().getUserInfosDao();
 
         return view;
     }
@@ -86,7 +108,9 @@ public class ContactsFragment extends Fragment implements DeSwitchGroup.ItemHand
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action.equals(MainActivity.ACTION_DMEO_AGREE_REQUEST)) {
-                updateDate();
+                //updateDate();
+            	GetMyFriendTask getMyFriendTask = new GetMyFriendTask();
+            	getMyFriendTask.execute();
             }
         }
 
@@ -219,7 +243,7 @@ public class ContactsFragment extends Fragment implements DeSwitchGroup.ItemHand
 
         }
         ArrayList<Friend> friendList = new ArrayList<Friend>();
-        friendList.add(new Friend("★001", "新的朋友", getResources().getResourceName(R.drawable.de_address_new_friend)));
+        friendList.add(new Friend("★001", "新的朋友和班级", getResources().getResourceName(R.drawable.de_address_new_friend)));
         friendList.add(new Friend("★002", "群聊",getResources().getResourceName(R.drawable.de_address_group) ));
         friendList.add(new Friend("★003", "公众号", getResources().getResourceName(R.drawable.de_address_public)));
         userMap.put("★", friendList);
@@ -254,12 +278,14 @@ public class ContactsFragment extends Fragment implements DeSwitchGroup.ItemHand
         if(mAdapter !=null){
             mAdapter = null;
         }
+        if(mFriendsList != null) {
+        	mFriendsList.clear();
+        }
         ArrayList<UserInfo> userInfos = null;
         //获取好友列表
         if (DemoContext.getInstance() != null) {
             userInfos = DemoContext.getInstance().getFriendList();
         }
-        mFriendsList = new ArrayList<Friend>();
 
         if (userInfos != null) {
             for (UserInfo userInfo : userInfos) {
@@ -275,8 +301,134 @@ public class ContactsFragment extends Fragment implements DeSwitchGroup.ItemHand
         mAdapter = new ContactsMultiChoiceAdapter(getActivity(), mFriendsList);
 
         mListView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
         fillData();
     }
+    
+    private class GetMyFriendTask extends AsyncTask<Void, Void, String> {
+
+    	@Override
+		protected String doInBackground(Void... arg0) {
+			HttpClient client = new DefaultHttpClient();
+
+			HttpGet httpGet = new HttpGet("http://moments.daoapp.io/api/v1.0/users/getmyfriends");
+
+			String result = null;
+			try {
+				String md5 = LoginActivity.password;
+				String encoding  = Base64.encodeToString(new String(LoginActivity.username +":"+md5).getBytes(), Base64.NO_WRAP);
+				Log.d(TAG, "password= " + md5 + "userName = " + LoginActivity.username + "encoding:" + encoding);
+				httpGet.setHeader("Authorization", "Basic " + encoding);
+				HttpResponse response = client.execute(httpGet);
+				Log.d(TAG, "getmyfriends result code = " + response.getStatusLine().getStatusCode());
+				if (response.getStatusLine().getStatusCode() == 200) {
+					result = EntityUtils.toString(response.getEntity());
+					Log.d(TAG, "getmyfriends result = " + result);
+					return result;
+				} else {
+					return null;
+				}
+
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(final String str) {
+			if (str != null) { 
+                        try {
+        					/** 把json字符串转换成json对象 **/
+        					JSONObject jsonObject = new JSONObject(str);
+        					String resultCode = jsonObject.getString("status");
+        					if (resultCode.equalsIgnoreCase("200")) {
+        						if (friendsList != null) {
+        							friendsList.clear();
+        						}
+        						if(mAdapter !=null){
+        				            mAdapter = null;
+        				        }
+        				        if(mFriendsList != null) {
+        				        	mFriendsList.clear();
+        				        }
+        				        if (DemoContext.getInstance() != null) {
+                                	DemoContext.getInstance().deleteUserInfos();
+                                }
+        				        
+        						JSONArray idJson = jsonObject.getJSONArray("friend");
+        						for (int i = 0; i < idJson.length(); i++) {
+        							Log.i(TAG, "friend id" + i + ":" + idJson.getString(i));
+        							JSONObject jsonObject1 = idJson.getJSONObject(i);
+        							String id = jsonObject1.getString("id");
+        							String name = jsonObject1.getString("username");
+        							String portrait = jsonObject1.getString("portrait");
+									if (!name.equals(LoginActivity.username)) {
+										UserInfos userInfos = new UserInfos();
+										userInfos.setUserid(id);
+										userInfos.setUsername(name);
+										userInfos.setStatus("1");
+										if (portrait != null) {
+											userInfos.setPortrait(portrait);
+										}
+										friendsList.add(userInfos);
+									}
+        							
+        						}
+        						
+        						if (friendsList != null) {
+                                    for (UserInfos friend : friendsList) {
+                                        UserInfos f = new UserInfos();
+                                        f.setUserid(friend.getUserid());
+                                        f.setUsername(friend.getUsername());
+                                        f.setPortrait(friend.getPortrait());
+                                        f.setStatus(friend.getStatus());
+                                        mUserInfosDao.insertOrReplace(f);
+                                    }
+                                }
+        						
+        						ArrayList<UserInfo> userInfos1 = null;
+        				        //获取好友列表
+        				        if (DemoContext.getInstance() != null) {
+        				            userInfos1 = DemoContext.getInstance().getFriendList();
+        				        }
+
+        				        if (userInfos1 != null) {
+        				            for (UserInfo userInfo : userInfos1) {
+        				                Friend friend = new Friend();
+        				                friend.setNickname(userInfo.getName());
+        				                friend.setPortrait(userInfo.getPortraitUri() + "");
+        				                friend.setUserId(userInfo.getUserId());
+        				                mFriendsList.add(friend);
+        				            }
+        				        }
+                                mFriendsList = sortFriends(mFriendsList);
+//                              
+                                mAdapter = new ContactsMultiChoiceAdapter(getActivity(), mFriendsList);
+
+                                mListView.setAdapter(mAdapter);
+                                mAdapter.notifyDataSetChanged();
+                                fillData();
+        					}      					
+        				} catch (JSONException e1) {
+        					// TODO Auto-generated catch block
+        					e1.printStackTrace();
+        				}
+
+
+                        
+                        
+                    }
+
+               
+				
+			} 
+	    
+	}
 
     @Override
     public void onDestroy() {

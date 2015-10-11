@@ -1,25 +1,30 @@
 package io.rong.app;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import io.rong.app.activity.MainActivity;
 import io.rong.app.activity.SOSOLocationActivity;
 import io.rong.app.common.DemoApi;
 import io.rong.app.database.DBManager;
 import io.rong.app.database.UserInfos;
 import io.rong.app.database.UserInfosDao;
 import io.rong.app.model.ClassGroup;
+import io.rong.app.provider.RequestProvider;
 import io.rong.imkit.RongIM;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.UserInfo;
+import io.rong.message.ContactNotificationMessage;
 
 /**
  * Created by Bob on 2015/1/30.
@@ -295,6 +300,39 @@ public class DemoContext  {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);//SOSO地图
         }
+    }
+    
+    public void insertRequest(ContactNotificationMessage contactContentMessage) {
+    	Log.d("DemoContext", "insertRequest:" + contactContentMessage.getMessage());
+    	if (contactContentMessage.getMessage().equalsIgnoreCase("send request")) {
+        	final String classId = contactContentMessage.getExtra();
+        	Log.d("DemoContext", "insertRequest:classId:" + classId);
+        	//add the request by database
+        	{
+        		if (contactContentMessage.getSourceUserId() != null) {
+        			ContentValues values = new ContentValues();
+        			values.put(RequestProvider.RequestConstants.USERID, contactContentMessage.getSourceUserId());
+        			values.put(RequestProvider.RequestConstants.USERNAME, "");
+        			values.put(RequestProvider.RequestConstants.PORTRAIT, "");
+        			values.put(RequestProvider.RequestConstants.STATUS, 0);
+        			if(classId != null && !classId.equalsIgnoreCase("")) {
+        				values.put(RequestProvider.RequestConstants.CLASSID, classId);      				
+        				values.put(RequestProvider.RequestConstants.CLASSNAME, getGroupNameById(classId));
+        				values.put(RequestProvider.RequestConstants.ISCLASS, 1);
+        			} else {
+        				values.put(RequestProvider.RequestConstants.ISCLASS, 0);
+        			}
+        			mContext.getContentResolver().insert(RequestProvider.CONTENT_URI, values);
+        		}
+        	}
+    	}
+    	
+    	//已经被加为好友，需要更新朋友列表
+    	if (contactContentMessage.getMessage().equalsIgnoreCase("confirm")) {
+	    	Intent in = new Intent();
+	        in.setAction(MainActivity.ACTION_DMEO_AGREE_REQUEST);
+	        mContext.sendBroadcast(in);
+    	}
     }
 
 }

@@ -94,7 +94,7 @@
     <!-- friend list -->
     <string name="friend_list_multi_choice_comfirt_btn">"确定(%1$s)"</string>
     <string name="de_item_delete_friend">"删除"</string>
-    <string name="de_new_friends">"新的朋友"</string>
+    <string name="de_new_friends">"新的朋友和班级"</string>
 
     <!--group-->
     <string name="group_intro">"班级简介"</string>

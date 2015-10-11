@@ -29,6 +29,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,6 +41,7 @@ import io.rong.app.model.ApiResult;
 import io.rong.app.model.ClassGroup;
 import io.rong.app.model.Friends;
 import io.rong.app.model.Groups;
+import io.rong.app.model.User1;
 import io.rong.app.ui.LoadingDialog;
 import io.rong.app.utils.Constants;
 
@@ -150,10 +152,10 @@ public class SearchGroupActivity extends BaseApiActivity implements View.OnClick
         					httpPost.setHeader("Authorization", "Basic " + encoding);
         				    httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
         					HttpResponse response = client.execute(httpPost);
-        					Log.d("====", "result code = " + response.getStatusLine().getStatusCode());
+        					Log.d("====", "search class result code = " + response.getStatusLine().getStatusCode());
         					if (response.getStatusLine().getStatusCode() == 200) {
         						result = EntityUtils.toString(response.getEntity());
-        						Log.d(TAG, "result = " + result);
+        						Log.d(TAG, "search class result = " + result);
         						return result;
         					} else {
         						return null;
@@ -171,36 +173,41 @@ public class SearchGroupActivity extends BaseApiActivity implements View.OnClick
 
         			@Override
         			protected void onPostExecute(String result) {
-        				if (result != null) {									
+        				if (mDialog != null)
+			                mDialog.dismiss();
+			           		            
+        				if (result != null) {
+        					if (mResultList.size() > 0)
+     			                mResultList.clear();
         					try {
-								/** 把json字符串转换成json对象 **/
-								JSONObject jsonObject = new JSONObject(result);
-								String resultCode = jsonObject.getString("status");
-								String id = jsonObject.getString("id");
-								String portrait = jsonObject.getString("portrait");
-								String name = jsonObject.getString("name");
-								String introduce = jsonObject.getString("introduce");
-								if (resultCode.equalsIgnoreCase("200")) {
-									if (mDialog != null)
-						                mDialog.dismiss();
-						            if (mResultList.size() > 0)
-						                mResultList.clear();
-						            ClassGroup classgroup = new ClassGroup(id, name, portrait, introduce);
-						            mResultList.add(classgroup);
-		                            adapter = new SearchGroupAdapter(mResultList, SearchGroupActivity.this);
-		                            mListSearch.setAdapter(adapter);
-		                            adapter.notifyDataSetChanged();
-								}
-								
-							} catch (JSONException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-
+        							/** 把json字符串转换成json对象 **/
+        							JSONObject jsonObject = new JSONObject(result);
+        							String resultCode = jsonObject.getString("status");
+        							if (resultCode.equalsIgnoreCase("200")) {
+        								
+        								JSONArray idJson = jsonObject.getJSONArray("classes");
+        								for (int i = 0; i < idJson.length(); i++) {
+        									JSONObject jsonObject1 = idJson.getJSONObject(i);
+        									String id = jsonObject1.getString("id");
+        									String name = jsonObject1.getString("name");
+        									String portrait = jsonObject1.getString("portrait");
+        									String introduce = jsonObject1.getString("introduce");
+        									mResultList.add(new ClassGroup(id, name, portrait, introduce));	
+        									adapter = new SearchGroupAdapter(mResultList, SearchGroupActivity.this);
+        		                            mListSearch.setAdapter(adapter);
+        		                            adapter.notifyDataSetChanged();
+        								}
+        								
+								     } else {
+									    Toast.makeText(SearchGroupActivity.this, "not found", Toast.LENGTH_LONG).show();
+								     }				
+        					 } catch (JSONException e1) {
+        						// TODO Auto-generated catch block
+        						e1.printStackTrace();
+        					 }
         				} else {
-        					
+							Toast.makeText(SearchGroupActivity.this,"not found", Toast.LENGTH_LONG).show();
         				}
-
         		    }
                   }.execute();
 

@@ -615,6 +615,9 @@ public class LoginActivity extends BaseApiActivity implements View.OnClickListen
                                 	getMyFriendTask.execute();
                                 }
                             }*/
+                            if (DemoContext.getInstance() != null) {
+                            	DemoContext.getInstance().deleteUserInfos();
+                            }
                             GetMyFriendTask getMyFriendTask = new GetMyFriendTask();
                         	getMyFriendTask.execute();
                         	
@@ -749,15 +752,16 @@ public class LoginActivity extends BaseApiActivity implements View.OnClickListen
         							String id = jsonObject1.getString("id");
         							String name = jsonObject1.getString("username");
         							String portrait = jsonObject1.getString("portrait");
-        							
-        							UserInfos userInfos = new UserInfos();
-                                    userInfos.setUserid(id);
-                                    userInfos.setUsername(name);
-                                    userInfos.setStatus("1");
-                                    if (portrait != null) {
-                                        userInfos.setPortrait(portrait);
-                                    }
-                                    friendsList.add(userInfos);
+									if (!name.equals(username)) {
+										UserInfos userInfos = new UserInfos();
+										userInfos.setUserid(id);
+										userInfos.setUsername(name);
+										userInfos.setStatus("1");
+										if (portrait != null) {
+											userInfos.setPortrait(portrait);
+										}
+										friendsList.add(userInfos);
+									}
         							
         						}
         					}      					
