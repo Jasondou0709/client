@@ -178,6 +178,18 @@ public class CustomerFragment extends Fragment {
 		if (TextUtils.isEmpty(res)) {
 			return;
 		}
+		
+		HashMap<String, Group> groupMap = DemoContext.getInstance().getGroupMap();
+		if (groupMap != null) {
+			Iterator iteror = groupMap.entrySet().iterator();
+			while (iteror.hasNext()) {
+				Entry entry = (Entry) iteror.next();
+				groupIdList.add((String) entry.getKey());
+				Log.d("CustomerFragment", "groupIdlist:" + (String) entry.getKey());
+			}
+		}		
+		
+		
 		new AsyncTask<String, Void, String>() {
 			@Override
 			protected void onPostExecute(String result) {
@@ -229,15 +241,15 @@ public class CustomerFragment extends Fragment {
 				//HttpGet httpGet = new HttpGet("http://moments.daoapp.io/api/v1.0/class/search" + "?name=" + groupName);
 				httpget.setHeader("Authorization", "Basic " + encoding);
 				
-				HashMap<String, Group> groupMap = DemoContext.getInstance().getGroupMap();
-				if (groupMap != null) {
-					Iterator iteror = groupMap.entrySet().iterator();
-					while (iteror.hasNext()) {
-						Entry entry = (Entry) iteror.next();
-						groupIdList.add((String) entry.getKey());
-						Log.d("CustomerFragment", "groupIdlist:" + (String) entry.getKey());
-					}
-				}
+//				HashMap<String, Group> groupMap = DemoContext.getInstance().getGroupMap();
+//				if (groupMap != null) {
+//					Iterator iteror = groupMap.entrySet().iterator();
+//					while (iteror.hasNext()) {
+//						Entry entry = (Entry) iteror.next();
+//						groupIdList.add((String) entry.getKey());
+//						Log.d("CustomerFragment", "groupIdlist:" + (String) entry.getKey());
+//					}
+//				}
 
 				String result = null;
 				try {
