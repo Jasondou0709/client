@@ -157,8 +157,7 @@ public final class RongCloudEvent implements RongIMClient.OnReceiveMessageListen
     @Override
     public boolean onReceivePushMessage(PushNotificationMessage msg) {
         Log.d(TAG, "onReceived-onPushMessageArrive:" + msg.getContent());
-
-        PushNotificationManager.getInstance().onReceivePush(msg);
+        //PushNotificationManager.getInstance().onReceivePush(msg);
 
 //        Intent intent = new Intent();
 //        Uri uri;
@@ -513,9 +512,9 @@ public final class RongCloudEvent implements RongIMClient.OnReceiveMessageListen
 
             TextMessage textMessage = (TextMessage) messageContent;
         }else if(messageContent instanceof  ContactNotificationMessage){
-            Log.e(TAG,"---onConversationClick--ContactNotificationMessage-");
-
+            Log.e(TAG,"---onConversationClick--ContactNotificationMessage-");          
             context.startActivity(new Intent(context, NewFriendListActivity.class));
+            RongIM.getInstance().getRongIMClient().removeConversation(conversation.getConversationType(), conversation.getConversationTargetId()); // 删除好友请求消息
             return true;
         }
         return false;

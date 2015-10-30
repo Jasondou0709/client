@@ -5,21 +5,44 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import io.rong.app.activity.LoginActivity;
 import io.rong.app.activity.MainActivity;
 import io.rong.app.activity.SOSOLocationActivity;
+import io.rong.app.activity.SearchFriendActivity;
+import io.rong.app.adapter.SearchFriendAdapter;
 import io.rong.app.common.DemoApi;
 import io.rong.app.database.DBManager;
 import io.rong.app.database.UserInfos;
 import io.rong.app.database.UserInfosDao;
 import io.rong.app.model.ClassGroup;
+import io.rong.app.model.User1;
 import io.rong.app.provider.RequestProvider;
 import io.rong.imkit.RongIM;
 import io.rong.imlib.model.Group;
@@ -41,7 +64,9 @@ public class DemoContext  {
     private SharedPreferences mPreferences;
     private RongIM.LocationProvider.LocationCallback mLastLocationCallback;
     private UserInfosDao mUserInfosDao;
-
+    private String requestUserName = "";
+    private String classId;
+    private String portrait;
 
     public static DemoContext getInstance() {
 
@@ -87,6 +112,21 @@ public class DemoContext  {
         return groupMap;
     }
 
+    public boolean hasGroup(String groupId) {
+    	if (groupMap != null) {
+    		return groupMap.containsKey(groupId);
+    	}
+    	return false;
+    }
+    
+    public Group getGroupById(String groupId) {
+    	if (groupMap != null) {
+    		if (groupMap.containsKey(groupId)) {
+    			return groupMap.get(groupId);
+    		}
+    	}
+    	return null;
+    }
     
     public void setClassGroups(ArrayList<ClassGroup> classGroup) {
         this.mClassGroups = classGroup;
@@ -302,7 +342,7 @@ public class DemoContext  {
         }
     }
     
-    public void insertRequest(ContactNotificationMessage contactContentMessage) {
+    public void insertRequest(final ContactNotificationMessage contactContentMessage) {
     	Log.d("DemoContext", "insertRequest:" + contactContentMessage.getMessage());
     	if (contactContentMessage.getMessage().equalsIgnoreCase("send request")) {
         	final String classId = contactContentMessage.getExtra();
@@ -310,9 +350,75 @@ public class DemoContext  {
         	//add the request by database
         	{
         		if (contactContentMessage.getSourceUserId() != null) {
-        			ContentValues values = new ContentValues();
+        			new AsyncTask<String, Void, String> () {
+
+
+        	        	@Override
+        	    		protected String doInBackground(String... arg0) {
+        	    			HttpClient client = new DefaultHttpClient();
+
+        	    			//HttpGet httpGet = new HttpGet("http://moments.daoapp.io/api/v1.0/users/" + userId);
+        	    			HttpGet httpGet = new HttpGet(arg0[0]);
+        	    			
+        	    			String result = null;
+        	    			try {
+        	    				String md5 = LoginActivity.password;
+        	    				String encoding  = Base64.encodeToString(new String(LoginActivity.username +":"+md5).getBytes(), Base64.NO_WRAP);
+        	    				Log.d("DemoContext", "password= " + md5 + "userName = " + LoginActivity.username + "encoding:" + encoding);
+        	    				httpGet.setHeader("Authorization", "Basic " + encoding);
+        	    				HttpResponse response = client.execute(httpGet);
+        	    				Log.d("DemoContext", "searchusername result code = " + response.getStatusLine().getStatusCode());
+        	    				if (response.getStatusLine().getStatusCode() == 200) {
+        	    					result = EntityUtils.toString(response.getEntity());
+        	    					Log.d("DemoContext", "searchusername result = " + result);
+        	    					return result;
+        	    				} else {
+        	    					return null;
+        	    				}
+
+        	    			} catch (ClientProtocolException e) {
+        	    				// TODO Auto-generated catch block
+        	    				e.printStackTrace();
+        	    			} catch (IOException e) {
+        	    				// TODO Auto-generated catch block
+        	    				e.printStackTrace();
+        	    			}
+        	    			return null;
+        	    		}
+
+        	    		@Override
+        	    		protected void onPostExecute(String str) {
+        	    			if (str != null) {    	            
+        	    	            try {
+        	    					/** 把json字符串转换成json对象 **/
+        	    					JSONObject jsonObject = new JSONObject(str);
+        	    					String name = jsonObject.getString("username");
+        	    					String portrait = jsonObject.getString("portrait");
+        	    					ContentValues values = new ContentValues();
+        	            			values.put(RequestProvider.RequestConstants.USERID, contactContentMessage.getSourceUserId());
+        	            			values.put(RequestProvider.RequestConstants.USERNAME, name);
+        	            			values.put(RequestProvider.RequestConstants.PORTRAIT, portrait);
+        	            			values.put(RequestProvider.RequestConstants.STATUS, 0);
+        	            			if(classId != null && !classId.equalsIgnoreCase("")) {
+        	            				values.put(RequestProvider.RequestConstants.CLASSID, classId);      				
+        	            				values.put(RequestProvider.RequestConstants.CLASSNAME, getGroupNameById(classId));
+        	            				values.put(RequestProvider.RequestConstants.ISCLASS, 1);
+        	            			} else {
+        	            				values.put(RequestProvider.RequestConstants.ISCLASS, 0);
+        	            			}
+        	            			mContext.getContentResolver().insert(RequestProvider.CONTENT_URI, values);
+        	    				} catch (JSONException e1) {
+        	    					// TODO Auto-generated catch block
+        	    					e1.printStackTrace();
+        	    				}			
+        	    			}  
+        	    	    }
+        	    	
+        	    }.execute("http://moments.daoapp.io/api/v1.0/users/" + contactContentMessage.getSourceUserId());
+        			
+        			/*ContentValues values = new ContentValues();
         			values.put(RequestProvider.RequestConstants.USERID, contactContentMessage.getSourceUserId());
-        			values.put(RequestProvider.RequestConstants.USERNAME, "");
+        			values.put(RequestProvider.RequestConstants.USERNAME, getUserNameById(contactContentMessage.getSourceUserId()));
         			values.put(RequestProvider.RequestConstants.PORTRAIT, "");
         			values.put(RequestProvider.RequestConstants.STATUS, 0);
         			if(classId != null && !classId.equalsIgnoreCase("")) {
@@ -322,7 +428,7 @@ public class DemoContext  {
         			} else {
         				values.put(RequestProvider.RequestConstants.ISCLASS, 0);
         			}
-        			mContext.getContentResolver().insert(RequestProvider.CONTENT_URI, values);
+        			mContext.getContentResolver().insert(RequestProvider.CONTENT_URI, values);*/
         		}
         	}
     	}
@@ -334,5 +440,79 @@ public class DemoContext  {
 	        mContext.sendBroadcast(in);
     	}
     }
+    
+    public String getUserNameById(String userId) {
+    	SearchUserNameTask task = new SearchUserNameTask();
+    	task.execute("http://moments.daoapp.io/api/v1.0/users/" + userId);
+    	return requestUserName;
+    }
+    
+    private class SearchUserNameTask extends AsyncTask<String, Void, String> {
+
+
+        	@Override
+    		protected String doInBackground(String... arg0) {
+    			HttpClient client = new DefaultHttpClient();
+
+    			//HttpGet httpGet = new HttpGet("http://moments.daoapp.io/api/v1.0/users/" + userId);
+    			HttpGet httpGet = new HttpGet(arg0[0]);
+    			
+    			String result = null;
+    			try {
+    				String md5 = LoginActivity.password;
+    				String encoding  = Base64.encodeToString(new String(LoginActivity.username +":"+md5).getBytes(), Base64.NO_WRAP);
+    				Log.d("DemoContext", "password= " + md5 + "userName = " + LoginActivity.username + "encoding:" + encoding);
+    				httpGet.setHeader("Authorization", "Basic " + encoding);
+    				HttpResponse response = client.execute(httpGet);
+    				Log.d("DemoContext", "searchusername result code = " + response.getStatusLine().getStatusCode());
+    				if (response.getStatusLine().getStatusCode() == 200) {
+    					result = EntityUtils.toString(response.getEntity());
+    					Log.d("DemoContext", "searchusername result = " + result);
+    					return result;
+    				} else {
+    					return null;
+    				}
+
+    			} catch (ClientProtocolException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			} catch (IOException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+    			return null;
+    		}
+
+    		@Override
+    		protected void onPostExecute(final String str) {
+    			if (str != null) {    	            
+    	            try {
+    					/** 把json字符串转换成json对象 **/
+    					JSONObject jsonObject = new JSONObject(str);
+    					requestUserName = jsonObject.getString("username");    										
+    				} catch (JSONException e1) {
+    					// TODO Auto-generated catch block
+    					e1.printStackTrace();
+    				}			
+    			}  
+    	    }
+    	
+    }
+
+   public void setClassId(String id) {
+	   classId = id;
+   }
+   
+   public String getClassId() {
+	   return classId;
+   }
+    
+   public void setPortrait(String portRait) {
+	   portrait = portRait;
+   }
+   
+   public String getPortrait() {
+	   return portrait;
+   }
 
 }

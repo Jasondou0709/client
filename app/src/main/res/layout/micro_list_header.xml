@@ -9,7 +9,7 @@
         android:layout_width="fill_parent"
         android:layout_height="200dp"
         android:background="@drawable/micro_header_bg">
-        <ImageView 
+        <io.rong.imkit.widget.AsyncImageView 
             android:id="@+id/MicroIcon"
             android:layout_width="80dp"
             android:layout_height="80dp"
@@ -17,7 +17,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="5dp"
-            android:background="@drawable/empty_photo"/>
+            android:src="@drawable/empty_photo"/>
     </RelativeLayout>
     
 

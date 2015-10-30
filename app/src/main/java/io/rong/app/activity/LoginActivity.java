@@ -68,6 +68,7 @@ import io.rong.app.model.ClassGroup;
 import io.rong.app.model.Friends;
 import io.rong.app.model.Groups;
 import io.rong.app.model.User;
+import io.rong.app.provider.RequestProvider;
 import io.rong.app.ui.EditTextHolder;
 import io.rong.app.ui.LoadingDialog;
 import io.rong.app.ui.WinToast;
@@ -164,6 +165,8 @@ public class LoginActivity extends BaseApiActivity implements View.OnClickListen
     private boolean isFirst = false;
     public static String username;
     public static String password;
+    private String mClassId;
+    private String mPortrait;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -311,9 +314,14 @@ public class LoginActivity extends BaseApiActivity implements View.OnClickListen
 										try {
 											/** 把json字符串转换成json对象 **/
 											JSONObject jsonObject = new JSONObject(result);
-											String userId = jsonObject.getString("id");
 											String resultCode = jsonObject.getString("result");
-											loginSuccess(resultCode, userId);
+											JSONObject jsonObject1 = jsonObject.getJSONObject("user");	        					
+	        								String userId = jsonObject1.getString("id");
+	        								String portrait = jsonObject1.getString("portrait");
+	        								String classId = jsonObject1.getString("default_cls");
+											loginSuccess(resultCode, userId, classId, portrait);
+											
+											LoginActivity.this.getContentResolver().delete(RequestProvider.CONTENT_URI, null, null);
 											
 										} catch (JSONException e1) {
 											// TODO Auto-generated catch block
@@ -334,6 +342,8 @@ public class LoginActivity extends BaseApiActivity implements View.OnClickListen
                         String token = DemoContext.getInstance().getSharedPreferences().getString("DEMO_TOKEN", "DEFAULT");
                         if (!token.equals("DEFAULT")) {
                         	Log.d(TAG, "token != DEFAULT");
+                        	mClassId = DemoContext.getInstance().getSharedPreferences().getString("DEMO_USER_CLASSID", "0");
+                        	mPortrait = DemoContext.getInstance().getSharedPreferences().getString("DEMO_USER_PORTRAIT", null);
                             httpGetTokenSuccess(token);
                         } else {
                             //loginHttpRequest = DemoContext.getInstance().getDemoApi().login(userName, passWord, this);
@@ -378,9 +388,12 @@ public class LoginActivity extends BaseApiActivity implements View.OnClickListen
 										try {
 											/** 把json字符串转换成json对象 **/
 											JSONObject jsonObject = new JSONObject(result);
-											String userId = jsonObject.getString("id");
 											String resultCode = jsonObject.getString("result");
-											loginSuccess(resultCode, userId);
+											JSONObject jsonObject1 = jsonObject.getJSONObject("user");	        					
+	        								String userId = jsonObject1.getString("id");
+	        								String portrait = jsonObject1.getString("portrait");
+	        								String classId = jsonObject1.getString("default_cls");
+											loginSuccess(resultCode, userId, classId, portrait);
 											
 										} catch (JSONException e1) {
 											// TODO Auto-generated catch block
@@ -617,6 +630,9 @@ public class LoginActivity extends BaseApiActivity implements View.OnClickListen
                             }*/
                             if (DemoContext.getInstance() != null) {
                             	DemoContext.getInstance().deleteUserInfos();
+                            	DemoContext.getInstance().setClassId(mClassId);
+                            	DemoContext.getInstance().setPortrait(mPortrait);
+                            	Log.d(TAG, "httpGetTokenSuccess().setClassId():" + mClassId + "httpGetTokenSuccess().setPortrait():" + mPortrait);
                             }
                             GetMyFriendTask getMyFriendTask = new GetMyFriendTask();
                         	getMyFriendTask.execute();
@@ -1093,6 +1109,23 @@ public class LoginActivity extends BaseApiActivity implements View.OnClickListen
     		SharedPreferences.Editor edit = DemoContext.getInstance().getSharedPreferences().edit();
             edit.putString("DEMO_USER_ID", userId);
             edit.putString("DEMO_USER_NAME", userName);
+            edit.apply();
+            Log.e(TAG, "-------login success------");
+            getHttpToken();
+    	} else {
+    		WinToast.toast(LoginActivity.this, "账号或密码错误");
+    	}
+    }
+    
+    private void loginSuccess(String resultCode, String userId, String classId, String portrait) {
+    	if (resultCode.equalsIgnoreCase("200")) {
+    		SharedPreferences.Editor edit = DemoContext.getInstance().getSharedPreferences().edit();
+            edit.putString("DEMO_USER_ID", userId);
+            edit.putString("DEMO_USER_NAME", userName);
+            edit.putString("DEMO_USER_CLASSID", classId);
+            edit.putString("DEMO_USER_PORTRAIT", portrait);
+            mClassId = classId;
+            mPortrait = portrait;
             edit.apply();
             Log.e(TAG, "-------login success------");
             getHttpToken();

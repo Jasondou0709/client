@@ -41,7 +41,9 @@ import io.rong.app.model.User;
 import io.rong.app.ui.LoadingDialog;
 import io.rong.app.ui.WinToast;
 import io.rong.app.utils.Constants;
+import io.rong.imkit.RongIM;
 import io.rong.imkit.widget.AsyncImageView;
+import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.UserInfo;
 
 
@@ -91,7 +93,9 @@ public class DeGroupDetailActivity extends BaseApiActivity implements View.OnCli
             mClassIntroduce.setText(getIntent().getStringExtra("SEARCH_INTRODUCE"));
             mFriendImg.setResource(new Resource(getIntent().getStringExtra("SEARCH_PORTRAIT")));
             classId = getIntent().getStringExtra("SEARCH_USERID");
-
+            if (DemoContext.getInstance() != null && DemoContext.getInstance().hasGroup(classId)) {
+                mAddFriend.setText("聊天");;
+            }
         }
 
        /* if (getIntent().hasExtra("GROUP")) {
@@ -141,84 +145,92 @@ public class DeGroupDetailActivity extends BaseApiActivity implements View.OnCli
     }
 
     @Override
-    public void onClick(View v) {
-        String targetid = getIntent().getStringExtra("SEARCH_USERID");
+	public void onClick(View v) {
+		final String targetid = getIntent().getStringExtra("SEARCH_USERID");
+		final String classname = getIntent().getStringExtra("SEARCH_USERNAME");
+		if (mAddFriend.getText().equals("聊天")) {
+			if (RongIM.getInstance() != null)
+                RongIM.getInstance().getRongIMClient().joinGroup(targetid, classname, new RongIMClient.OperationCallback() {
+                    @Override
+                    public void onSuccess() {
+                        RongIM.getInstance().startGroupChat(DeGroupDetailActivity.this, targetid, classname);
 
-        if (DemoContext.getInstance() != null && !"".equals(targetid)) {
-            if (DemoContext.getInstance() != null) {
-//                String targetname = DemoContext.getInstance().getUserInfoById(targetid).getName().toString();
-//                mUserHttpRequest = DemoContext.getInstance().getDemoApi().sendFriendInvite(targetid,"请添加我为好友，I'm "+targetname, this);
-                //mUserHttpRequest = DemoContext.getInstance().getDemoApi().sendGroupJoinInvite(targetid,"请添加我为好友 ", this);
-         
-            	new AsyncTask<Void, Void, String>() {
+                    }
 
-        			@Override
-        			protected String doInBackground(Void... arg0) {
-        				HttpClient client = new DefaultHttpClient();
+                    @Override
+                    public void onError(RongIMClient.ErrorCode errorCode) {
+                    }
+                });
+			
+		} else {
+			if (DemoContext.getInstance() != null && !"".equals(targetid)) {
+				if (DemoContext.getInstance() != null) {
+					new AsyncTask<Void, Void, String>() {
 
-        				HttpPost httpPost = new HttpPost("http://moments.daoapp.io/api/v1.0/class/enroll/" + classId);
+						@Override
+						protected String doInBackground(Void... arg0) {
+							HttpClient client = new DefaultHttpClient();
 
-    					//List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-						//nameValuePairs.add(new BasicNameValuePair("id", classId));				
-						
-        				String result = null;
-        				try {
-        					String md5 = LoginActivity.password;
-        					String encoding  = Base64.encodeToString(new String(LoginActivity.username +":"+md5).getBytes(), Base64.NO_WRAP);
-        					Log.d(TAG, "password= " + md5 + "userName = " + LoginActivity.username + "encoding:" + encoding);
-        					//HttpGet httpGet = new HttpGet("http://moments.daoapp.io/api/v1.0/class/search" + "?name=" + groupName);
-        					httpPost.setHeader("Authorization", "Basic " + encoding);
-        				    //httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
-        					HttpResponse response = client.execute(httpPost);
-        					Log.d(TAG, "result code = " + response.getStatusLine().getStatusCode());
-        					if (response.getStatusLine().getStatusCode() == 200) {
-        						result = EntityUtils.toString(response.getEntity());
-        						Log.d(TAG, "result = " + result);
-        						return result;
-        					} else {
-        						return null;
-        					}
+							HttpPost httpPost = new HttpPost("http://moments.daoapp.io/api/v1.0/class/enroll/" + classId);						
 
-        				} catch (ClientProtocolException e) {
-        					// TODO Auto-generated catch block
-        					e.printStackTrace();
-        				} catch (IOException e) {
-        					// TODO Auto-generated catch block
-        					e.printStackTrace();
-        				}
-        				return null;
-        			}
-
-        			@Override
-        			protected void onPostExecute(String result) {
-        				if (result != null) {									
-        					try {
-								/** 把json字符串转换成json对象 **/
-								JSONObject jsonObject = new JSONObject(result);
-								String resultCode = jsonObject.getString("status");
-								if (resultCode.equalsIgnoreCase("200")) {
-									Toast.makeText(DeGroupDetailActivity.this, "已发出加入班级请求", Toast.LENGTH_LONG).show();
+							String result = null;
+							try {
+								String md5 = LoginActivity.password;
+								String encoding = Base64.encodeToString(new String(LoginActivity.username + ":" + md5).getBytes(), Base64.NO_WRAP);
+								Log.d(TAG, "password= " + md5 + "userName = " + LoginActivity.username + "encoding:" + encoding);								
+								httpPost.setHeader("Authorization", "Basic " + encoding);
+								HttpResponse response = client.execute(httpPost);
+								Log.d(TAG, "result code = " + response.getStatusLine().getStatusCode());
+								if (response.getStatusLine().getStatusCode() == 200) {
+									result = EntityUtils.toString(response.getEntity());
+									Log.d(TAG, "result = " + result);
+									return result;
 								} else {
-									String message = jsonObject.getString("message");
-									Toast.makeText(DeGroupDetailActivity.this, message, Toast.LENGTH_LONG).show();
+									return null;
 								}
-								
-							} catch (JSONException e1) {
+
+							} catch (ClientProtocolException e) {
 								// TODO Auto-generated catch block
-								e1.printStackTrace();
+								e.printStackTrace();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							return null;
+						}
+
+						@Override
+						protected void onPostExecute(String result) {
+							if (result != null) {
+								try {
+									/** 把json字符串转换成json对象 **/
+									JSONObject jsonObject = new JSONObject(result);
+									String resultCode = jsonObject.getString("status");
+									if (resultCode.equalsIgnoreCase("200")) {
+										Toast.makeText(DeGroupDetailActivity.this, "已发出加入班级请求", Toast.LENGTH_LONG).show();
+										DeGroupDetailActivity.this.finish();
+									} else {
+										String message = jsonObject.getString("message");
+										Toast.makeText(DeGroupDetailActivity.this, message, Toast.LENGTH_LONG).show();
+									}
+
+								} catch (JSONException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+
+							} else {
+								Toast.makeText(DeGroupDetailActivity.this, "发送请求失败", Toast.LENGTH_LONG).show();
 							}
 
-        				} else {
-        					Toast.makeText(DeGroupDetailActivity.this, "发送请求失败", Toast.LENGTH_LONG).show();
-        				}
+						}
+					}.execute();
 
-        		    }
-                  }.execute();
-                
-            }
+				}
 
-        }
-    }
+			}
+		}
+	}
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

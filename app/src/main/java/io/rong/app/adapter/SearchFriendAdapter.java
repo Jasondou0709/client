@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import com.sea_monster.resource.Resource;
+
 import io.rong.app.R;
 import io.rong.app.model.ApiResult;
 import io.rong.app.model.User1;
@@ -56,8 +58,8 @@ public class SearchFriendAdapter extends android.widget.BaseAdapter {
         }
 
         if(viewHolder != null) {
-            viewHolder.mSearchName.setText(mResults.get(position).getName());
-//            viewHolder.mImageView.setImageDrawable(mResults.get(position).getPortrait());
+            viewHolder.mSearchName.setText(mResults.get(position).getName());            
+            viewHolder.mImageView.setResource(new Resource(mResults.get(position).getPortrait()));
         }
 
         return convertView;

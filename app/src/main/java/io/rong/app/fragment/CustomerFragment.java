@@ -29,6 +29,7 @@ import com.example.microdemo.domain.OwnerMicro;
 import com.example.microdemo.util.FastjsonUtil;
 import com.example.microdemo.util.Str2MD5;
 import com.example.testpic.PublishedActivity;
+import com.sea_monster.resource.Resource;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -50,6 +51,7 @@ import android.widget.Toast;
 import io.rong.app.DemoContext;
 import io.rong.app.R;
 import io.rong.imkit.RongIM;
+import io.rong.imkit.widget.AsyncImageView;
 import io.rong.imlib.model.Group;
 
 /**
@@ -57,7 +59,7 @@ import io.rong.imlib.model.Group;
  */
 public class CustomerFragment extends Fragment {
 
-	private static final String TAG = "MicroActivity";
+	private static final String TAG = "CustomerFragment";
 	private String uid = "";
 	private String companykey = "";
 	int now = 0;
@@ -65,13 +67,13 @@ public class CustomerFragment extends Fragment {
 	private String strIcon = "";
 	List<FirendMicroListDatas> listdatas = new ArrayList<FirendMicroListDatas>();
 	
-	private ArrayList<String> groupIdList = new ArrayList<>();
+	private String classId;
 	private View header;
 	public CustomListView listview;
 	public ImageButton selectpic;
 	public MyListAdapter mAdapter;
 	public OwnerMicro ownerdata;
-	private ImageView MicroIcon;
+	private AsyncImageView MicroIcon;
 	String res = "";
 	String ownerres = "";
 
@@ -112,6 +114,10 @@ public class CustomerFragment extends Fragment {
 	private void init(View view) {
 		
 		getOwnerList();
+		if (DemoContext.getInstance() != null) {
+			classId = DemoContext.getInstance().getClassId();
+			Log.d(TAG, "DemoContext.getInstance().getClassId():" + classId);
+		}
 		selectpic = (ImageButton) view.findViewById(R.id.ib_right);
 		selectpic.setOnClickListener(new OnClickListener() {
 
@@ -120,14 +126,20 @@ public class CustomerFragment extends Fragment {
 
 				Intent intent = new Intent(getActivity(),
 				        PublishedActivity.class);
-				intent.putExtra("GroupIdList", groupIdList);
+				intent.putExtra("classId", classId);
 				startActivity(intent);
 			}
 		});
-
+		
 		header = LayoutInflater.from(getActivity()).inflate(R.layout.micro_list_header,
 		        null);
-		MicroIcon = (ImageView) view.findViewById(R.id.MicroIcon);
+		MicroIcon = (AsyncImageView) header.findViewById(R.id.MicroIcon);
+		if (DemoContext.getInstance() != null) {
+			if (DemoContext.getInstance().getPortrait() != null && !DemoContext.getInstance().getPortrait().equalsIgnoreCase("") && MicroIcon != null) {
+				MicroIcon.setResource(new Resource(DemoContext.getInstance().getPortrait()));
+			}
+		}
+		
 		listview = (CustomListView) view.findViewById(R.id.list);
 		listview.setVerticalScrollBarEnabled(false);
 		listview.setDivider(this.getResources().getDrawable(R.drawable.h_line));
@@ -178,18 +190,6 @@ public class CustomerFragment extends Fragment {
 		if (TextUtils.isEmpty(res)) {
 			return;
 		}
-		
-		HashMap<String, Group> groupMap = DemoContext.getInstance().getGroupMap();
-		if (groupMap != null) {
-			Iterator iteror = groupMap.entrySet().iterator();
-			while (iteror.hasNext()) {
-				Entry entry = (Entry) iteror.next();
-				groupIdList.add((String) entry.getKey());
-				Log.d("CustomerFragment", "groupIdlist:" + (String) entry.getKey());
-			}
-		}		
-		
-		
 		new AsyncTask<String, Void, String>() {
 			@Override
 			protected void onPostExecute(String result) {
@@ -241,15 +241,7 @@ public class CustomerFragment extends Fragment {
 				//HttpGet httpGet = new HttpGet("http://moments.daoapp.io/api/v1.0/class/search" + "?name=" + groupName);
 				httpget.setHeader("Authorization", "Basic " + encoding);
 				
-//				HashMap<String, Group> groupMap = DemoContext.getInstance().getGroupMap();
-//				if (groupMap != null) {
-//					Iterator iteror = groupMap.entrySet().iterator();
-//					while (iteror.hasNext()) {
-//						Entry entry = (Entry) iteror.next();
-//						groupIdList.add((String) entry.getKey());
-//						Log.d("CustomerFragment", "groupIdlist:" + (String) entry.getKey());
-//					}
-//				}
+				
 
 				String result = null;
 				try {
@@ -266,12 +258,16 @@ public class CustomerFragment extends Fragment {
 				return result;
 			}
 		}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-		        "http://moments.daoapp.io/api/v1.0/posts/?page="+i + "&classid=" + (groupIdList.size() == 0 ?"" :groupIdList.get(0)));
+		        "http://moments.daoapp.io/api/v1.0/posts/?page="+ i + "&classid=" + classId);
 
 	}
 
 	private void getData(String s) {
-
+	    if (DemoContext.getInstance() != null) {
+			classId = DemoContext.getInstance().getClassId();
+			Log.d(TAG, "getData().getClassId():" + classId);
+		}
+	    
 		if ("下拉刷新".equals(s)) {
 
 			getMicroList(1, true);

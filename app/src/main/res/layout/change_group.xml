@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <TextView
+        android:id="@+id/change_group_comment"
+        style="@style/DemoTextStyleBigBlack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:layout_marginLeft="8dp"
+        android:text="您已经添加如下的班级设成了朋友圈:" />
+
+    <RelativeLayout
+        android:id="@+id/relativelayout"
+        android:layout_width="match_parent"
+        android:layout_height="80dp" >
+
+        <io.rong.imkit.widget.AsyncImageView
+            android:id="@+id/group_adapter_img"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
+            android:padding="4dp"
+            android:src="@drawable/de_group_default_portrait" />
+        
+        <TextView
+            android:id="@+id/group_adaper_name"
+            style="@style/DemoTextStyleBigBlack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/group_adapter_img"
+            android:layout_marginLeft="6dp"
+            android:ellipsize="end"
+            android:text="大融云" />
+
+        <Button
+            android:id="@+id/group_select"
+            style="@style/DemoTextStyleBigBlack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:text="切换班级" />
+    </RelativeLayout>
+    
+    <Button
+        android:id="@+id/group_choose"
+        style="@style/DemoTextStyleBigBlack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="8dp"
+        android:visibility="gone"
+        android:text="选择班级" />
+
+</LinearLayout>

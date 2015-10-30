@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <TextView
+        android:id="@+id/select_group_comment"
+        style="@style/DemoTextStyleBigBlack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:layout_marginLeft="8dp"
+        android:visibility="gone"
+        android:text="您目前没有加入到任何班级，请先加入班级"/>
+    <Button  
+       android:id="@+id/show"
+       android:layout_width="wrap_content"  
+       android:layout_height="wrap_content"  
+       android:text="OK"/>  
+    <ListView  
+       android:id="@+id/lvperson"  
+       android:layout_width="fill_parent"  
+       android:layout_height="fill_parent"/> 
+    
+
+</LinearLayout>

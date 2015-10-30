@@ -61,6 +61,9 @@
             android:screenOrientation="portrait"></activity>
 
         <activity
+            android:name=".activity.ClipPictureActivity"
+            android:screenOrientation="portrait"></activity>        
+        <activity
             android:name=".activity.AboutRongCloudActivity"
             android:screenOrientation="portrait"></activity>
         <activity
@@ -76,6 +79,12 @@
             android:name=".activity.UpdateNameActivity"
             android:screenOrientation="portrait"></activity>
         <activity
+            android:name=".activity.SelectPictureActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".activity.SelectPictureGridActivity"
+            android:screenOrientation="portrait"></activity>                
+        <activity
             android:name=".activity.FriendListActivity"
             android:screenOrientation="portrait"></activity>
         <activity
@@ -86,6 +95,12 @@
             android:screenOrientation="portrait"></activity>
          <activity
             android:name=".activity.SearchGroupActivity"
+            android:screenOrientation="portrait"></activity>
+          <activity
+            android:name=".activity.ChangeGroupActivity"
+            android:screenOrientation="portrait"></activity>          
+          <activity
+            android:name=".activity.SelectGroupActivity"
             android:screenOrientation="portrait"></activity>
           <activity
             android:name=".activity.CreateGroupActivity"
@@ -326,11 +341,11 @@
             android:process=":ipc"></service>
         <service android:name="io.rong.imlib.ReConnectService" />
 
-        <receiver android:name="io.rong.imlib.ipc.PushMessageReceiver">
+        <!-- <receiver android:name="io.rong.imlib.ipc.PushMessageReceiver">
             <intent-filter>
                 <action android:name="io.rong.push.message" />
             </intent-filter>
-        </receiver>
+        </receiver> -->
         <receiver android:name="io.rong.imlib.ConnectChangeReceiver" />
         
         

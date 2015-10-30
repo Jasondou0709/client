@@ -17,6 +17,7 @@ import java.util.List;
 
 import io.rong.app.DemoContext;
 import io.rong.app.R;
+import io.rong.app.adapter.BlackMultiChoiceAdapter;
 import io.rong.app.model.Friend;
 import io.rong.app.model.Status;
 import io.rong.app.ui.LoadingDialog;
@@ -26,6 +27,7 @@ import io.rong.imkit.RongIM;
 import io.rong.imkit.widget.AsyncImageView;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.UserInfo;
+
 import com.sea_monster.exception.BaseException;
 import com.sea_monster.network.AbstractHttpRequest;
 import com.sea_monster.resource.Resource;
@@ -51,6 +53,7 @@ public class PersonalDetailActivity extends BaseApiActivity implements View.OnCl
     private AbstractHttpRequest<Status> mDeleteFriendRequest;
     UserInfo userInfo;
     private LoadingDialog mDialog;
+    private boolean isBlacklist = false;
 
 
     @Override
@@ -86,12 +89,14 @@ public class PersonalDetailActivity extends BaseApiActivity implements View.OnCl
             userInfo = DemoContext.getInstance().getUserInfoById(friendid);
             mPersonalName.setText(userInfo.getName().toString());
             mPersonalId.setText("Id:" + userInfo.getUserId().toString());
+            mPersonalImg.setResource(new Resource(userInfo.getPortraitUri()));
 
         }
 
         if (getIntent().hasExtra("USER")) {
 
             userInfo = getIntent().getParcelableExtra("USER");
+            friendid = userInfo.getUserId();
             mPersonalName.setText(userInfo.getName().toString());
             mPersonalImg.setResource(new Resource(userInfo.getPortraitUri()));
 
@@ -104,6 +109,25 @@ public class PersonalDetailActivity extends BaseApiActivity implements View.OnCl
             if(userInfo.getUserId().equals(DemoContext.getInstance().getSharedPreferences().getString("DEMO_USER_ID","defult"))){
                 mSendMessage.setVisibility(View.GONE);
             }
+        }
+        
+        if (RongIM.getInstance().getRongIMClient() != null) {
+            RongIM.getInstance().getRongIMClient().getBlacklist(new RongIMClient.GetBlacklistCallback() {
+                @Override
+                public void onSuccess(String[] userIds) {
+                    for (int i=0; i<userIds.length; i++) {
+                    	if (userIds[i].equalsIgnoreCase(friendid)) {
+                    		isBlacklist = true;
+                    		supportInvalidateOptionsMenu();
+                    	}
+                    }
+                    
+                }
+                
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                }
+            });
         }
 
     }
@@ -163,6 +187,9 @@ public class PersonalDetailActivity extends BaseApiActivity implements View.OnCl
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.per_menu, menu);
+        if (isBlacklist) {
+        	menu.getItem(0).getSubMenu().getItem(0).setTitle("取消黑名单");
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -170,11 +197,14 @@ public class PersonalDetailActivity extends BaseApiActivity implements View.OnCl
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.per_item1://加入黑名单
-                if (DemoContext.getInstance() != null && friendid != null) {
-                    RongIM.getInstance().getRongIMClient().addToBlacklist(friendid, new RongIMClient.AddToBlackCallback() {
+			if (DemoContext.getInstance() != null && friendid != null) {
+				if (isBlacklist) {
+					RongIM.getInstance().getRongIMClient().removeFromBlacklist(friendid, new RongIMClient.RemoveFromBlacklistCallback() {
                         @Override
                         public void onSuccess() {
-                            WinToast.toast(PersonalDetailActivity.this, "加入黑名单成功");
+                        	WinToast.toast(PersonalDetailActivity.this, "取消黑名单成功");
+                        	isBlacklist = false;
+                        	supportInvalidateOptionsMenu();
                         }
 
                         @Override
@@ -182,7 +212,22 @@ public class PersonalDetailActivity extends BaseApiActivity implements View.OnCl
 
                         }
                     });
-                }
+				} else {
+					RongIM.getInstance().getRongIMClient().addToBlacklist(friendid, new RongIMClient.AddToBlackCallback() {
+						@Override
+						public void onSuccess() {
+							WinToast.toast(PersonalDetailActivity.this, "加入黑名单成功");
+							isBlacklist = true;
+							supportInvalidateOptionsMenu();
+						}
+						@Override
+						public void onError(RongIMClient.ErrorCode errorCode) {
+
+						}
+					});
+				}
+			}
+
 
                 break;
             case R.id.per_item2://删除好友

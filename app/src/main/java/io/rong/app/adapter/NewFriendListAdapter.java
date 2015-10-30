@@ -84,7 +84,7 @@ public class NewFriendListAdapter extends android.widget.BaseAdapter {
         		Resource res = new Resource(mResults.get(position).getPortrait());
         		viewHolder.mPortraitImg.setResource(res);
         	}
-            viewHolder.mFrienduUserName.setText(mResults.get(position).getId() + mResults.get(position).getName());
+            viewHolder.mFrienduUserName.setText(mResults.get(position).getName());
             viewHolder.mFrienduState.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -19,10 +19,11 @@
     <string name="main_contacts">通讯录</string>
     <string name="main_friend_group">我们班</string>
     <string name="add_chat">发起聊天</string>
-    <string name="add_select_group">选择班级</string>
+    <string name="add_select_group">切换班级</string>
     <string name="add_voip">网络电话</string>
     <string name="add_chatroom">聊天室</string>
     <string name="search_group">搜索班级</string>
+    <string name="change_group">切换班级</string>
     <string name="create_group">创建班级</string>
     <string name="set_personal_information">我的账号</string>
     <string name="set_news_reminded">新消息提醒</string>

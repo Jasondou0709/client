@@ -26,10 +26,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,13 +45,16 @@ import io.rong.app.R;
 import io.rong.app.activity.GroupDetailActivity;
 import io.rong.app.activity.LoginActivity;
 import io.rong.app.activity.MainActivity;
+import io.rong.app.activity.SearchFriendActivity;
 import io.rong.app.adapter.ContactsMultiChoiceAdapter;
 import io.rong.app.adapter.GroupListAdapter;
+import io.rong.app.adapter.SearchFriendAdapter;
 import io.rong.app.model.ApiResult;
 import io.rong.app.model.ClassGroup;
 import io.rong.app.model.Friend;
 import io.rong.app.model.Groups;
 import io.rong.app.model.Status;
+import io.rong.app.model.User1;
 import io.rong.app.ui.LoadingDialog;
 import io.rong.app.ui.WinToast;
 import io.rong.app.utils.Constants;
@@ -127,6 +135,15 @@ public class GroupListFragment extends BaseFragment implements AdapterView.OnIte
             });
 
             mDemoGroupListAdapter.notifyDataSetChanged();
+            
+            if (mResultList !=null && !mResultList.isEmpty()) {
+            	if ( DemoContext.getInstance().getClassId() == null || DemoContext.getInstance().getClassId().equalsIgnoreCase("0")) {
+            		DemoContext.getInstance().setClassId(mResultList.get(0).getId());
+            		Log.d(TAG, "DemoContext.getInstance().setClassId");
+            		SetClassIdTask mTask = new SetClassIdTask();
+            		mTask.execute();
+            	}
+            }
         }
     }
 
@@ -260,6 +277,15 @@ public class GroupListFragment extends BaseFragment implements AdapterView.OnIte
             });
 					
 			mDemoGroupListAdapter.notifyDataSetChanged();
+			
+			 if (mResultList !=null && !mResultList.isEmpty()) {
+	            	if ( DemoContext.getInstance().getClassId() == null || DemoContext.getInstance().getClassId().equalsIgnoreCase("0")) {
+	            		DemoContext.getInstance().setClassId(mResultList.get(0).getId());
+	            		Log.d(TAG, "DemoContext.getInstance().setClassId");
+	            		SetClassIdTask mTask = new SetClassIdTask();
+	            		mTask.execute();
+	            	}
+	            }
 		}
     }
     
@@ -458,5 +484,65 @@ public class GroupListFragment extends BaseFragment implements AdapterView.OnIte
 
     }
 
+    private class SetClassIdTask extends AsyncTask<Void, Void, String> {
 
+    	@Override
+		protected String doInBackground(Void... arg0) {
+			HttpClient client = new DefaultHttpClient();
+
+			HttpPost httpPost = new HttpPost("http://moments.daoapp.io/api/v1.0/users/setdefaultgroup");
+			
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+	        nameValuePairs.add(new BasicNameValuePair("defaultclass", mResultList.get(0).getId()));
+	     
+
+			String result = null;
+			try {
+				String md5 = LoginActivity.password;
+				String encoding  = Base64.encodeToString(new String(LoginActivity.username +":"+md5).getBytes(), Base64.NO_WRAP);
+				Log.d(TAG, "password= " + md5 + "userName = " + LoginActivity.username + "encoding:" + encoding);
+				httpPost.setHeader("Authorization", "Basic " + encoding);
+				httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+				HttpResponse response = client.execute(httpPost);
+				Log.d(TAG, "SetClassIdTask result code = " + response.getStatusLine().getStatusCode());
+				if (response.getStatusLine().getStatusCode() == 200) {
+					result = EntityUtils.toString(response.getEntity());
+					Log.d(TAG, "SetClassIdTask result = " + result);
+					return result;
+				} else {
+					return null;
+				}
+
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String str) {
+			
+			if (str != null) {	            
+	            try {
+					/** 把json字符串转换成json对象 **/
+					JSONObject jsonObject = new JSONObject(str);
+					String resultCode = jsonObject.getString("status");
+					if (resultCode.equalsIgnoreCase("200")) {
+						Log.d(TAG, "setdefaultgroup(): sucess");
+					} else {
+						Log.d(TAG, "setdefaultgroup(): fail");
+					}     					
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}			
+			} else {
+				Log.d(TAG, "setdefaultgroup(): fail");
+			}   
+	    }
+	}
 }

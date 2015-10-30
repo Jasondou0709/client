@@ -593,8 +593,8 @@ public class MainActivity extends BaseApiActivity implements View.OnClickListene
             mMenu.getItem(0).setIcon(getResources().getDrawable(R.drawable.de_ic_add_hasmessage));
             mMenu.getItem(0).getSubMenu().getItem(2).setIcon(getResources().getDrawable(R.drawable.de_btn_main_contacts_select));
         } else {*/
-            mMenu.getItem(0).setIcon(getResources().getDrawable(R.drawable.de_ic_add));
-            mMenu.getItem(0).getSubMenu().getItem(2).setIcon(getResources().getDrawable(R.drawable.de_btn_main_contacts));
+            //mMenu.getItem(0).setIcon(getResources().getDrawable(R.drawable.de_ic_add));
+           // mMenu.getItem(0).getSubMenu().getItem(2).setIcon(getResources().getDrawable(R.drawable.de_btn_main_contacts));
 
         //}
 
@@ -607,19 +607,19 @@ public class MainActivity extends BaseApiActivity implements View.OnClickListene
             case R.id.add_item1://发起聊天
                 startActivity(new Intent(this, FriendListActivity.class));
                 break;
-            case R.id.add_item2://选择群组
-
-                if (RongIM.getInstance() != null)
-                    RongIM.getInstance().startSubConversationList(this, Conversation.ConversationType.GROUP);
+            case R.id.add_item2://创建班级
+            	startActivity(new Intent(MainActivity.this, CreateGroupActivity.class));
                 break;
-            case R.id.add_item3://通讯录
-                startActivity(new Intent(MainActivity.this, DeAdressListActivity.class));
+            case R.id.add_item3://搜索班级
+            	startActivity(new Intent(MainActivity.this, SearchGroupActivity.class));               
                 break;
-            case R.id.add_item4://通讯录
-                startActivity(new Intent(MainActivity.this, SearchGroupActivity.class));
+            case R.id.add_item4://选择班级
+            	//if (RongIM.getInstance() != null)
+                //    RongIM.getInstance().startSubConversationList(this, Conversation.ConversationType.GROUP);
+            	startActivity(new Intent(MainActivity.this, ChangeGroupActivity.class));
                 break; 
-            case R.id.add_item5://创建班级
-                startActivity(new Intent(MainActivity.this, CreateGroupActivity.class));
+            case R.id.add_item5://聊天室
+            	startActivity(new Intent(MainActivity.this, DeAdressListActivity.class));
                 break; 
             case R.id.set_item1://我的账号
                 startActivity(new Intent(MainActivity.this, MyAccountActivity.class));

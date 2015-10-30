@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import com.sea_monster.resource.Resource;
+
 import io.rong.app.R;
 import io.rong.app.model.ApiResult;
 import io.rong.app.model.ClassGroup;
@@ -46,7 +48,7 @@ public class SearchGroupAdapter extends android.widget.BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
         if(convertView == null || convertView.getTag() == null){
-            convertView = mLayoutInflater.inflate(R.layout.de_item_search,parent,false);
+            convertView = mLayoutInflater.inflate(R.layout.de_group_search,parent,false);
             viewHolder = new ViewHolder();
             viewHolder.mSearchName = (TextView) convertView.findViewById(R.id.search_item_name);
             viewHolder.mImageView = (AsyncImageView) convertView.findViewById(R.id.search_adapter_img);
@@ -57,7 +59,7 @@ public class SearchGroupAdapter extends android.widget.BaseAdapter {
 
         if(viewHolder != null) {
             viewHolder.mSearchName.setText(mResults.get(position).getClassName());
-//            viewHolder.mImageView.setImageDrawable(mResults.get(position).getPortrait());
+            //viewHolder.mImageView.setResource(new Resource(mResults.get(position).getPortrait()));
         }
 
         return convertView;

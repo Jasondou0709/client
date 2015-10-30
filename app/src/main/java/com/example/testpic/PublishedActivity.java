@@ -69,7 +69,7 @@ public class PublishedActivity extends Activity
 	private GridAdapter adapter;
 	private TextView activity_selectimg_send;
 	private EditText newPostEt;
-	private List<String> classIdList = new ArrayList<String>();
+	private String classId;
 
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -81,8 +81,8 @@ public class PublishedActivity extends Activity
 	@SuppressLint("NewApi")
 	public void Init()
 	{
-		if(getIntent().hasExtra("GroupIdList")) {
-			classIdList = getIntent().getStringArrayListExtra("GroupIdList");
+		if(getIntent().hasExtra("classId")) {
+			classId = getIntent().getStringExtra("classId");
 		}
 		newPostEt = (EditText) findViewById(R.id.makepost);
 		noScrollgridview = (GridView) findViewById(R.id.noScrollgridview);
@@ -180,7 +180,7 @@ public class PublishedActivity extends Activity
 	        
 	        jsonParam.put("content", params[0]);// 标题
 	        jsonParam.put("urls", array);
-	        jsonParam.put("class_id", (classIdList != null && classIdList.size() == 0) ? "" :classIdList.get(0));
+	        jsonParam.put("class_id", classId);
 	        jsonParam.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()));
 	        StringEntity entity = null;
 			try {

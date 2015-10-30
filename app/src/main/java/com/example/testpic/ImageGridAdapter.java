@@ -26,7 +26,7 @@ public class ImageGridAdapter extends BaseAdapter
 	final String TAG = getClass().getSimpleName();
 	Activity act;
 	List<ImageItem> dataList;
-	Map<String, String> map = new HashMap<String, String>();
+	public Map<String, String> map = new HashMap<String, String>();
 	BitmapCache cache;
 	private Handler mHandler;
 	private int selectTotal = 0;
@@ -149,6 +149,7 @@ public class ImageGridAdapter extends BaseAdapter
 					item.isSelected = !item.isSelected;
 					if (item.isSelected)
 					{
+						map.put(path, path);
 						holder.selected
 								.setImageResource(R.drawable.icon_data_select);
 						holder.text
@@ -156,7 +157,7 @@ public class ImageGridAdapter extends BaseAdapter
 						selectTotal++;
 						if (textcallback != null)
 							textcallback.onListen(selectTotal);
-						map.put(path, path);
+						
 
 					} else if (!item.isSelected)
 					{

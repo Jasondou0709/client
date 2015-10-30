@@ -133,6 +133,7 @@ public class CreateGroupActivity extends BaseActivity implements View.OnClickLis
 									Intent in = new Intent();
 				                    in.setAction(MainActivity.ACTION_DMEO_GROUP_MESSAGE);
 				                    sendBroadcast(in);
+				                    CreateGroupActivity.this.finish();
 								} else {
 									Toast.makeText(CreateGroupActivity.this,"创建班级失败", Toast.LENGTH_LONG).show();
 								}

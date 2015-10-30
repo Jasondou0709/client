@@ -38,6 +38,7 @@ import io.rong.app.model.User;
 import io.rong.app.ui.LoadingDialog;
 import io.rong.app.ui.WinToast;
 import io.rong.app.utils.Constants;
+import io.rong.imkit.RongIM;
 import io.rong.imkit.widget.AsyncImageView;
 import io.rong.imlib.model.UserInfo;
 
@@ -69,7 +70,7 @@ public class DePersonalDetailActivity extends BaseApiActivity implements View.On
 
 
     protected void initView() {
-        getSupportActionBar().setTitle(R.string.public_add_address);
+        getSupportActionBar().setTitle(R.string.de_actionbar_detail);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
         mFriendImg = (AsyncImageView) findViewById(R.id.friend_adapter_img);
@@ -85,6 +86,9 @@ public class DePersonalDetailActivity extends BaseApiActivity implements View.On
         	mUserId = getIntent().getStringExtra("SEARCH_USERID");
             mFriendName.setText(getIntent().getStringExtra("SEARCH_USERNAME"));
             mFriendImg.setResource(new Resource(getIntent().getStringExtra("SEARCH_PORTRAIT")));
+            if (DemoContext.getInstance() != null && DemoContext.getInstance().searcheUserInfosById(mUserId)) {
+                mAddFriend.setText("发消息");
+            }
 
         }
 
@@ -94,13 +98,14 @@ public class DePersonalDetailActivity extends BaseApiActivity implements View.On
             mFriendImg.setResource(new Resource(user.getPortraitUri()));
             String userID = DemoContext.getInstance().getSharedPreferences().getString("DEMO_USERID","defalt");
             if(user.getUserId().equals(userID)){
+            	mFriendName.setText(DemoContext.getInstance().getSharedPreferences().getString("DEMO_USERNAME",""));
                 mAddFriend.setVisibility(View.GONE);
             }else if(user.getUserId().equals("kefu114")){
                 mAddFriend.setVisibility(View.GONE);
             }
 
             if (DemoContext.getInstance() != null && DemoContext.getInstance().searcheUserInfosById(user.getUserId())) {
-                mAddFriend.setVisibility(View.GONE);
+            	mAddFriend.setText("发消息");
             }
         }
 
@@ -137,19 +142,23 @@ public class DePersonalDetailActivity extends BaseApiActivity implements View.On
     @Override
     public void onClick(View v) {
         String targetid = getIntent().getStringExtra("SEARCH_USERID");
-
-        if (DemoContext.getInstance() != null && !"".equals(targetid)) {
-            {
-//                String targetname = DemoContext.getInstance().getUserInfoById(targetid).getName().toString();
-//                mUserHttpRequest = DemoContext.getInstance().getDemoApi().sendFriendInvite(targetid,"请添加我为好友，I'm "+targetname, this);
-                AddFriendTask addFriendTask = new AddFriendTask();
-                addFriendTask.execute();
-
-                if (mDialog != null && !mDialog.isShowing()) {
-                    mDialog.show();
-                }
-            }
-
+        
+        if (mAddFriend.getText().equals("发消息")) {
+        	if (RongIM.getInstance() != null && DemoContext.getInstance() != null) {
+                if(targetid != null)
+                RongIM.getInstance().startPrivateChat(DePersonalDetailActivity.this, targetid, DemoContext.getInstance().getUserInfoById(targetid).getName().toString());
+            }       	
+        } else {
+	        if (DemoContext.getInstance() != null && !"".equals(targetid)) {
+	            {
+	                AddFriendTask addFriendTask = new AddFriendTask();
+	                addFriendTask.execute();
+	
+	                if (mDialog != null && !mDialog.isShowing()) {
+	                    mDialog.show();
+	                }
+	            }
+	        }
         }
     }
 

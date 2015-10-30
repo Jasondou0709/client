@@ -1,7 +1,11 @@
 package com.example.microdemo.adapter;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,12 +47,14 @@ import com.example.microdemo.MyApplication;
 
 import io.rong.app.R;
 import io.rong.app.fragment.CustomerFragment;
+import io.rong.imkit.widget.AsyncImageView;
 
 import com.example.microdemo.domain.FirendMicroListDatas;
 import com.example.microdemo.domain.FirstMicroListDatasFirendcomment;
 import com.example.microdemo.domain.OwnerMicro;
 import com.example.microdemo.util.FastjsonUtil;
 import com.example.microdemo.util.MyCustomDialog;
+import com.sea_monster.resource.Resource;
 //import com.loveplusplus.demo.image.ImagePagerActivity;
 //import com.loveplusplus.demo.image.MyGridAdapter;
 //import com.loveplusplus.demo.image.NoScrollGridView;
@@ -135,7 +141,7 @@ public class MyListAdapter extends BaseAdapter {
 			holder.text = (TextView) convertView.findViewById(R.id.text);
 			holder.view = (TextView) convertView.findViewById(R.id.view);
 			holder.time = (TextView) convertView.findViewById(R.id.time);
-			holder.avator = (ImageView) convertView.findViewById(R.id.avator);
+			holder.avator = (AsyncImageView) convertView.findViewById(R.id.avator);
 			holder.name = (TextView) convertView.findViewById(R.id.name);
 			holder.content = (TextView) convertView.findViewById(R.id.content);
 			holder.btnIgnore = (Button) convertView
@@ -205,6 +211,11 @@ public class MyListAdapter extends BaseAdapter {
 		 * 显示姓名
 		 */
 		holder.name.setText(bean.getUname());// 姓名
+		
+		//显示头像
+		if (bean.getUsericon() !=null && !bean.getUsericon().equalsIgnoreCase("")) {
+			holder.avator.setResource(new Resource(bean.getUsericon()));
+		}
 		// 加载内容（文字和表情）
 		String strExpression = bean.getContent();
 		holder.content.setText(Html.fromHtml(strExpression));// 如果要表情的话，把这个去掉，然后把下面的加上就行了
@@ -621,7 +632,7 @@ public class MyListAdapter extends BaseAdapter {
 
 	private static class ViewHolder {
 		public TextView name, text, view, time;
-		public ImageView avator;
+		public AsyncImageView avator;
 		public Button btnIgnore, btnComment, btnPraise;
 		public TextView content;
 		public LinearLayout liearLayoutIgnore, layout, layoutParise, layout01;

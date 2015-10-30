@@ -13,22 +13,22 @@
                 android:id="@+id/add_item1"
                 android:icon="@drawable/de_btn_main_chat"
                 android:title="@string/add_chat" />
-            <item
+             <item
                 android:id="@+id/add_item2"
-                android:icon="@drawable/de_btn_main_groups"
-                android:title="@string/add_select_group" />
-            <item
-                android:id="@+id/add_item3"
-                android:icon="@drawable/de_btn_main_contacts"
-                android:title="@string/add_chatroom" />
-            <item
-                android:id="@+id/add_item4"
-                android:icon="@drawable/de_btn_main_contacts"
-                android:title="@string/search_group" />
-            <item
-                android:id="@+id/add_item5"
                 android:icon="@drawable/de_btn_main_contacts"
                 android:title="@string/create_group" />
+             <item
+                android:id="@+id/add_item3"
+                android:icon="@drawable/de_btn_main_contacts"
+                android:title="@string/search_group" /> 
+             <item
+                android:id="@+id/add_item4"
+                android:icon="@drawable/de_btn_main_groups"
+                android:title="@string/add_select_group" />                              
+             <item
+                android:id="@+id/add_item5"
+                android:icon="@drawable/de_btn_main_contacts"
+                android:title="@string/add_chatroom" />
         </menu>
     </item>
 
