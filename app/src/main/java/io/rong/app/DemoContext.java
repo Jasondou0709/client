@@ -67,6 +67,7 @@ public class DemoContext  {
     private String requestUserName = "";
     private String classId;
     private String portrait;
+    private String userName = "";
 
     public static DemoContext getInstance() {
 
@@ -513,6 +514,14 @@ public class DemoContext  {
    
    public String getPortrait() {
 	   return portrait;
+   }
+   
+   public void setUserName(String name) {
+	   userName = name;
+   }
+   
+   public String getUserName() {
+	   return userName;
    }
 
 }

@@ -2,19 +2,41 @@ package io.rong.app.activity;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.FileEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar.LayoutParams;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,21 +47,23 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import io.rong.app.DemoContext;
 import io.rong.app.R;
 import io.rong.app.utils.Constants;
 
 import com.example.testpic.Bimp;
+import com.example.testpic.FileUtils;
 import com.example.testpic.TestPicActivity;
 import com.sea_monster.resource.Resource;
+
 import io.rong.imkit.widget.AsyncImageView;
 
 /**
  * Created by Administrator on 2015/3/2.
  */
 public class MyAccountActivity extends BaseActionBarActivity implements View.OnClickListener {
-
+	
+	private static final String TAG = "MyAccountActivity";
     private static final int RESULTCODE = 10;
     ;
     /**
@@ -112,7 +136,10 @@ public class MyAccountActivity extends BaseActionBarActivity implements View.OnC
         }
         switch (requestCode) {
     	case TAKE_PICTURE:
-    		mImgMyPortrait.setImageBitmap(BitmapFactory.decodeFile(path));
+//    		mImgMyPortrait.setImageBitmap(BitmapFactory.decodeFile(path));
+			Intent intent_picture = new Intent(MyAccountActivity.this,ClipPictureActivity.class);
+			intent_picture.putExtra("clipfilepath",path );
+			startActivityForResult(intent_picture, CLIP_PICTURE);       		
     		break;  
     	case TAKE_PICTURE_ALBUM:
     	    Bundle b=data.getExtras(); //data为B中回传的Intent
@@ -124,7 +151,16 @@ public class MyAccountActivity extends BaseActionBarActivity implements View.OnC
 			startActivityForResult(intent, CLIP_PICTURE);    
     		break;   
     	case CLIP_PICTURE:
-    		
+    		String portrait = data.getStringExtra("portraituri");
+    		mImgMyPortrait.setResource(new Resource(portrait));
+    		if (DemoContext.getInstance() != null) {
+    			DemoContext.getInstance().setPortrait(portrait);
+    		}
+    		SharedPreferences.Editor edit = DemoContext.getInstance().getSharedPreferences().edit();
+            edit.putString("DEMO_USER_PORTRAIT", portrait);
+            edit.apply();
+            SetPortraitTask task = new SetPortraitTask();
+            task.execute(portrait);
 //			byte[] bis = data.getByteArrayExtra("bitmap");
 //			bitmap = BitmapFactory.decodeByteArray(bis, 0, bis.length);
 //			SoftReference<Bitmap> reference = imageCache.get("portarit");
@@ -241,5 +277,114 @@ public class MyAccountActivity extends BaseActionBarActivity implements View.OnC
   
         return true;  
     } 
+
+	private class SetPortraitTask extends AsyncTask<String, Void, String> {
+
+    	@Override
+		protected String doInBackground(String... arg0) {
+    		HttpClient client = new DefaultHttpClient();
+
+			HttpPost httpPost = new HttpPost("http://moments.daoapp.io/api/v1.0/users/changeportrait");
+			
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("portrait", arg0[0]));
+	     
+
+			String result = null;
+			try {
+				String md5 = LoginActivity.password;
+				String encoding  = Base64.encodeToString(new String(LoginActivity.username +":"+md5).getBytes(), Base64.NO_WRAP);
+				Log.d(TAG, "password= " + md5 + "userName = " + LoginActivity.username + "encoding:" + encoding);
+				httpPost.setHeader("Authorization", "Basic " + encoding);
+				httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+				HttpResponse response = client.execute(httpPost);
+				Log.d(TAG, "searchuser result code = " + response.getStatusLine().getStatusCode());
+				if (response.getStatusLine().getStatusCode() == 200) {
+					result = EntityUtils.toString(response.getEntity());
+					Log.d(TAG, "searchuser result = " + result);
+					return result;
+				} else {
+					return null;
+				}
+
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String str) {
+			if (str != null) {    	            
+	            try {
+					/** 把json字符串转换成json对象 **/
+					JSONObject jsonObject = new JSONObject(str);
+					String status = jsonObject.getString("status");   
+					if (status.equalsIgnoreCase("200")) {
+						Log.d(TAG, "set portrait success");
+					} else {
+						Log.d(TAG, "set portrait fail");
+					}
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}			
+			}  
+	    }
+	}
 	
+	private AsyncTask<String,Void,String> PortraitupdateTask = new AsyncTask<String,Void,String>(){
+
+		@Override
+		protected String doInBackground(String... params) {
+			String filepath = Environment.getExternalStorageDirectory()+ "/Baomeng/userdata/";
+			List<String> list = new ArrayList<String>();
+			HttpClient httpClient = new DefaultHttpClient();
+			HttpPost post = new HttpPost("http://ppzimg.daoapp.io/upload");
+
+				FileEntity entity = new FileEntity(new File(Environment.getExternalStorageDirectory()+"/Baomeng/userdata/portarit.png"),
+						"png");
+				post.setEntity(entity);
+				post.setHeader("Content-type", "png");
+				HttpResponse response = null;
+				String content = null;
+				try {
+					response = httpClient.execute(post);
+					content = EntityUtils.toString(response.getEntity());
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					Log.i("ClipPictureActivity","在上传图片时出错ParseException："+e.toString());
+				} catch (IOException e) {
+					e.printStackTrace();
+					Log.i("ClipPictureActivity","在上传图片时出错IOException："+e.toString());
+				}
+				String id = content.substring(content.indexOf("md5")+6,content.indexOf("size")-3);
+				//postreplycls result = FastjsonUtil.json2object(content, postreplycls.class);
+				Log.i("=====","update protrait successful id->"+id);
+				list.add("http://ppzimg.daoapp.io/"+id);
+				FileUtils.deleteDir(filepath);	
+				return id;
+
+		}
+	    protected void onPostExecute(String result) {
+//			ByteArrayOutputStream baos = new ByteArrayOutputStream();			
+//			fianBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+//			byte[] bitmapByte = baos.toByteArray();
+//			Intent intent=new Intent();
+//			intent.putExtra("bitmap", bitmapByte);
+//			setResult(Activity.RESULT_OK,intent);
+	    	Log.d(TAG, "portraituri:" + "http://ppzimg.daoapp.io/" + result);
+	    	Intent intent = new Intent();
+	    	intent.putExtra("portraituri", "http://ppzimg.daoapp.io/" + result);
+	    	setResult(RESULT_OK, intent);
+			finish();
+	    }
+		
+		
+	};
 }

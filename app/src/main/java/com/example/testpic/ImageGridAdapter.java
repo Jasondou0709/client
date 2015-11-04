@@ -149,7 +149,7 @@ public class ImageGridAdapter extends BaseAdapter
 					item.isSelected = !item.isSelected;
 					if (item.isSelected)
 					{
-						map.put(path, path);
+						map.put(path, path);						
 						holder.selected
 								.setImageResource(R.drawable.icon_data_select);
 						holder.text
@@ -157,7 +157,7 @@ public class ImageGridAdapter extends BaseAdapter
 						selectTotal++;
 						if (textcallback != null)
 							textcallback.onListen(selectTotal);
-						
+//						map.put(path, path);
 
 					} else if (!item.isSelected)
 					{

@@ -360,7 +360,10 @@ import android.widget.ImageView;
 //				Intent intent=new Intent();
 //				intent.putExtra("bitmap", bitmapByte);
 //				setResult(Activity.RESULT_OK,intent);
-		    	setResult(Activity.RESULT_OK);
+		    	Log.d(TAG, "portraituri:" + "http://ppzimg.daoapp.io/" + result);
+		    	Intent intent = new Intent();
+		    	intent.putExtra("portraituri", "http://ppzimg.daoapp.io/" + result);
+		    	setResult(RESULT_OK, intent);
 				finish();
 		    }
 			
