@@ -1,73 +1,62 @@
-# 融云
+# --宝盟--
 
-![Mou icon](http://www.rongcloud.cn/images/logo_1.png)
+##家园互动、幼儿消费信息共享平台
 
+###1.0版本功能列表：
+<font color="#0069d6">
+####总体说明：1.0版本功能集中于照片展示，聊天及班级管理。为家长和幼儿园提供一个安全、私密可管理的照片展示及信息互动平台。
+####1.照片展示：
+####功能上和微信朋友圈类似。提供照片展示，评论、点赞。区别为照片以班级为单位进行展示。随家长切换班级，所展示内容可以做对应切换。未经班主任批准加入班级的用户，无法看到照片内容。
+####2.班级管理：
+####a)创建班级：由老师创建班级，并作为班主任对班级进行管理。
+####b)搜索班级：家长搜索孩子所在的班级申请加入。班主任批准后，系统自动将全班所有家长推送过来，作为好友。
+####c)切换班级：家长可选择当前所在班级，切换后相册中显示对应班级。
+####3.聊天管理：
+####a).单聊：用户可以和任意好友进行聊天，并在“聊天”列表中显示。
+####b).班级群聊：用户加入班级后，自动进入班级群聊。在“班级”列表中显示所有已加入的班级。
+####c).自建群聊：用户可以选择任意好友创建群聊。
 
-##融云 Demo 2.0 运行方式
+</font>
+###2.0版本增加功能列表：
+<font color="#0069d6">
+####总体说明：2.0版本增加功能集中于家园互动，校方管理。
+####1.园所通知：
+####班主任可发布通知，所有家长收到提示。班主任可以实时查看家长收看状况。
+####2.本周食谱：
+####校长可在全校范围内发布菜谱。
+####4.幼儿园介绍。
+####幼儿园介绍与展示
+####5.幼儿园新闻。
+####幼儿园公共新闻。
+####6.教师点评：
+####家长可收到班主任针对每个孩子的点评，记录宝宝成长的点滴。
+####7.教学安排：
+####家长可及时查看还在所在班级的教学安排。
+####8.教师风采：
+####作为本班教师介绍。
+####6.权限管理：
+####根据发布者权限不同，发布信息范围不同。校长可在本校所有班级消息，通知。班主任只能在本班发布，普通用户则无权发布。
+</font>
 
-###Eclipse 环境
-
-#####1. 下载：
-  下载融云 demo 2.0 到自己电脑。
-#####2. 导入项目：
- 操作步骤：打开 Eclipse 选择 file—>import—>General—>Existing Projects into WorkSpace
-     选择融云 demo 目录，勾选 RongDemo、RongIMKit、android-support-v7-appcompat 项目，然后点finish按钮完成项目导入。
-#####3. 设置Java Complier:
-设置 JAVA 编译版本 jdk 1.7 以上。<br/>
-操作步骤：在 Eclipse 中分别右击  RongDemo、RongIMKit、android-support-v7-appcompat 项目 在菜单中选择 Properties->java Compiler->compiler complinace level 选择 1.7 以上 JDK 版本。
- 
-#####4. 完成导入 build apk。
-<font color="#0069d6">注：如果 clean 项目后发现还是不能正常运行，找到 Eclipse 下的 Problems 标签删除红色提示后方就正常运行。</font>
-
-
-###Android studio 环境
-#####1. 下载
- 下载融云 demo 2.0 到自己电脑。
-#####2. 导入项目
-打开 Android studio 选择 open an existing Android Studio project 导入项目。
-#####3. 删除引用
-为了更方便的 Eclipse 开发者我们引用了 appcompat-v7 包，Android studio 开发者需要做两步操作：<BR/>
- &nbsp;&nbsp;&nbsp;1. 删除 settings.gradle 中的 " appcompat-v7 "。 <BR/>
- &nbsp;&nbsp;&nbsp;2. 删除 appcompat-v7 Module 。
-#####4. 完成导入 build apk。
-
-<BR/><BR/><BR/>
-##融云 2.0升线文档
-
-###1、删除项目中引入的 1.0 的 SDK
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;需要删除的文件有：jar 包、so 文件、res 下以 rc 开头的 xml、图片、assets、以及 AndroidManifest 里面的配置文件。
-
-###2、添加融云 2.0 SDK
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.0 SDK 需要以项目依赖的形式引入，下面分别对 Android Studio 和 Eclipse 引用方式进行说明。
-
-####2.1、使用 Android Stadio 添加项目依赖
- 1. 新建 New Module...  命名 kit。
- 2. 复制 “ 融云 SDK 2.0 ” 到 kit 下。
- 3. 在你的主项目的 build.gradle 中的 dependencies 添加 compile project(':kit')。
- 4. 复制 “ 融云 SDK 2.0 ” AndroidManifest.xml 中的配置文件到你主项目的 AndroidManifest.xml 中去。
-
-####2.2 使用 Eclipse 添加项目依赖
-
-1. 将  “ 融云 SDK 2.0 ” 导入到工程中，设置为 依赖项目。
-2. 在你的主项目的 Library 下，添加  “ 融云 SDK 2.0 ” 为依赖项目。
-3. 复制 “ 融云 SDK 2.0 ” AndroidManifest.xml 中的配置文件到你主项目的 AndroidManifest.xml 中去。
-
-
-###3、修改调用方法
-1. 修改引用： “ 融云 SDK 2.0 ” 主要修改了一些回调方法，导入 “ 融云 SDK 2.0 ” 后发现报错，去修复相应的回调方法既可。
-2. “ 融云 SDK 2.0 ” 去掉了会话列表和会话页面的 Activity 依赖，Activity 需要开发者自己来写。详细见 “ 融云 SDK 2.0 ”  集成文档地址：http://docs.rongcloud.cn/android.html
-
-
+</font>
+###3.0版本增加功能列表：
+<font color="#0069d6">
+####总体说明：3.0版本增加功能集中于幼儿消费信息共享
+####1.周末去哪。
+####提供本地化亲自由信息。
+####2.幼教早教。
+####发布附件幼教早教机构信息，提供家长点评。
+####3.美食天地。
+####提供本地美食指南。团购，点评。
+####4.儿童乐园。
+####服务本地儿童乐园消费指南。
+####5.巧手妈妈。
+####提供幼儿家长DIY交流平台。
+####6.亲子育儿。
+####提供亲子育儿经验分享。
+</font>
 <BR/><BR/>
-#### 联系我们
-商务合作
-Email：<bd@rongcloud.cn>
 
-新浪微博 [@融云RongCloud](http://weibo.com/rongcloud)
 
-客服 QQ 2948214065
 
-公众帐号
-融云RongCloud RongCloud 公众账号二维码
 
-![Smaller icon](http://www.rongcloud.cn/images/code1.png "RongCloud")
